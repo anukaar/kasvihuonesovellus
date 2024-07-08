@@ -4,6 +4,8 @@ import 'package:kasvihuonesovellus/views/settings_page.dart';
 import 'package:kasvihuonesovellus/views/statistics_page.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -11,9 +13,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    GreenhouseMonitor(),
-    StatisticsPage(),
-    SettingsPage(),
+    const GreenhouseMonitor(),
+    const StatisticsPage(),
+    const SettingsPage(),
   ];
 
   @override
@@ -27,7 +29,7 @@ class _HomePageState extends State<HomePage> {
             _currentIndex = index;
           });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart), label: 'Statistics'),
