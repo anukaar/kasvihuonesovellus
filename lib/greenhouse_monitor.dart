@@ -26,10 +26,10 @@ class GreenhouseMonitor extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Temperature: ${greenhouseData.temperature}°C',
+            Text('Lämpötila: ${greenhouseData.temperature}°C',
                 style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
-            Text('Humidity: ${greenhouseData.humidity}%',
+            Text('Kosteus: ${greenhouseData.humidity}%',
                 style: TextStyle(fontSize: 24)),
           ],
         ),
