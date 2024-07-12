@@ -8,20 +8,28 @@ class GreenhouseMonitor extends ConsumerWidget {
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Greenhouse Monitor')),
+      appBar: AppBar(title: Text('Kasvihuoneeni')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Temperature: ${greenhouseData.temperature}°C',
+            Text(
+                'Lämpötila: ${greenhouseData.temperature.toStringAsFixed(1)}°C',
                 style: TextStyle(fontSize: 24)),
             SizedBox(height: 20),
-            Text('Humidity: ${greenhouseData.humidity}%',
+            Text('Kosteus: ${greenhouseData.humidity.toStringAsFixed(1)}%',
                 style: TextStyle(fontSize: 24)),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(greenhouseViewModelProvider.notifier).fetchData();
+              },
+              child: Text('Fetch Data'),
+            ),
           ],
         ),
       ),
-      floatingActionButton: Column(
+      /*floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
@@ -36,7 +44,7 @@ class GreenhouseMonitor extends ConsumerWidget {
             child: Icon(Icons.update),
           ),
         ],
-      ),
+      ),*/
     );
   }
 }

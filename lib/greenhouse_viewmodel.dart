@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kasvihuonesovellus/models/greenhouse_data.dart';
+import 'package:kasvihuonesovellus/services/simulated_bluetooth_service.dart';
 
 final greenhouseViewModelProvider =
     StateNotifierProvider<GreenhouseViewModel, GreenhouseData>(
@@ -7,16 +8,24 @@ final greenhouseViewModelProvider =
 );
 
 class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
-  GreenhouseViewModel()
-      : super(GreenhouseData(temperature: 0.0, humidity: 0.0));
+  final SimulatedBluetoothService _bluetoothService =
+      SimulatedBluetoothService();
+  GreenhouseViewModel() : super(GreenhouseData.initial());
 
-  void updateTemperature(double newTemperature) {
-    state =
-        GreenhouseData(temperature: newTemperature, humidity: state.humidity);
+  void updateData(
+      double newTemperature, double newHumidity, DateTime timestamp) {
+    state = state.copyWith(
+      temperatures: List.from(state.temperatures)..add(newTemperature),
+      humidities: List.from(state.humidities)..add(newHumidity),
+      timestamps: List.from(state.timestamps)..add(timestamp),
+    );
   }
 
-  void updateHumidity(double newHumidity) {
-    state =
-        GreenhouseData(temperature: state.temperature, humidity: newHumidity);
+  void fetchData() async {
+    double newTemperature = await _bluetoothService.getTemperature();
+    double newHumidity = await _bluetoothService.getHumidity();
+    DateTime timestamp = DateTime.now();
+
+    updateData(newTemperature, newHumidity, timestamp);
   }
 }
