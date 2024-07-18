@@ -9,9 +9,12 @@ final greenhouseViewModelProvider =
 
 class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
   final SimulatedBluetoothService _bluetoothService =
-      SimulatedBluetoothService();
-  GreenhouseViewModel() : super(GreenhouseData.initial());
+      SimulatedBluetoothService(); // creating an instance of SimulatedBluetoothService
+  GreenhouseViewModel()
+      : super(GreenhouseData
+            .initial()); // initializing the state with initial GreenhouseData
 
+  // method for adding new temperature, humidity and timestamp to the list
   void updateData(
       double newTemperature, double newHumidity, DateTime timestamp) {
     state = state.copyWith(
@@ -21,11 +24,14 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
     );
   }
 
+  // method for fetching new temperature and humidity from the Bluetooth service
   void fetchData() async {
     double newTemperature = await _bluetoothService.getTemperature();
     double newHumidity = await _bluetoothService.getHumidity();
-    DateTime timestamp = DateTime.now();
+    DateTime timestamp =
+        DateTime.now(); // getting the current time as a timestamp
 
-    updateData(newTemperature, newHumidity, timestamp);
+    updateData(newTemperature, newHumidity,
+        timestamp); // updating the state with new data
   }
 }

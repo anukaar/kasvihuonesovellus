@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class LineChartWidget extends StatelessWidget {
-  final List<double> data;
-  final List<DateTime> timestamps;
+  final List<double> data; // List of data points for the chart.
+  final List<DateTime>
+      timestamps; // List of timestamps corresponding to the data points.
   final Color color;
 
   const LineChartWidget({
@@ -18,6 +19,7 @@ class LineChartWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.lightGreenAccent,
+      // passing data, timestamps and color to private _LineChartWidget
       child: _LineChartWidget(
         data: data,
         timestamps: timestamps,
@@ -42,6 +44,7 @@ class _LineChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LineChart(
+      // setting all the data for the chart
       LineChartData(
         lineTouchData: lineTouchData(),
         gridData: gridData(),
@@ -49,8 +52,10 @@ class _LineChartWidget extends StatelessWidget {
         borderData: borderData(),
         backgroundColor: Colors.lightGreen.withOpacity(0.3),
         lineBarsData: lineBarsData(),
+        // setting the min and max values for x-axis
         minX: timestamps.first.millisecondsSinceEpoch.toDouble(),
         maxX: timestamps.last.millisecondsSinceEpoch.toDouble(),
+        // finding the min and max values for the y-axis
         minY:
             data.reduce((value, element) => value < element ? value : element),
         maxY:
@@ -59,11 +64,33 @@ class _LineChartWidget extends StatelessWidget {
     );
   }
 
-  LineTouchData lineTouchData() => const LineTouchData(
+  LineTouchData lineTouchData() => LineTouchData(
+        // setting touched spots and tooltips in the line
         handleBuiltInTouches: true,
+        getTouchedSpotIndicator:
+            (LineChartBarData barData, List<int> spotIndexes) {
+          return spotIndexes.map((index) {
+            return TouchedSpotIndicatorData(
+              FlLine(color: Colors.blue, strokeWidth: 2),
+              FlDotData(show: true),
+            );
+          }).toList();
+        },
+        touchTooltipData: LineTouchTooltipData(
+          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+            return touchedSpots.map((touchedSpot) {
+              final flSpot = touchedSpot;
+              return LineTooltipItem(
+                '${flSpot.y.toStringAsFixed(1)}',
+                const TextStyle(color: Colors.white),
+              );
+            }).toList();
+          },
+        ),
       );
 
   FlGridData gridData() => FlGridData(
+        //setting the appearance of the grid
         show: true,
         drawVerticalLine: true,
         horizontalInterval: 1,
@@ -79,6 +106,7 @@ class _LineChartWidget extends StatelessWidget {
       );
 
   FlTitlesData titlesData() => FlTitlesData(
+        // setting titles of the chart to be visible or not
         show: true,
         rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
@@ -90,9 +118,10 @@ class _LineChartWidget extends StatelessWidget {
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (value, meta) {
-              DateTime date =
-                  DateTime.fromMillisecondsSinceEpoch(value.toInt());
-              return Text(DateFormat('dd/MM').format(date));
+              DateTime date = DateTime.fromMillisecondsSinceEpoch(
+                  value.toInt()); // converting value to DateTime
+              return Text(DateFormat('dd/MM')
+                  .format(date)); // formatting date and returning it as text
             },
           ),
         ),
@@ -100,13 +129,15 @@ class _LineChartWidget extends StatelessWidget {
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (value, meta) {
-              return Text(value.toStringAsFixed(0));
+              return Text(value.toStringAsFixed(
+                  0)); // formatting value and returning it as text
             },
           ),
         ),
       );
 
   FlBorderData borderData() => FlBorderData(
+        // setting borders appearance
         show: true,
         border: Border(
           bottom: BorderSide(
@@ -124,7 +155,9 @@ class _LineChartWidget extends StatelessWidget {
           spots: List.generate(
             data.length,
             (index) => FlSpot(
-              timestamps[index].millisecondsSinceEpoch.toDouble(),
+              timestamps[index]
+                  .millisecondsSinceEpoch
+                  .toDouble(), // Converting timestamp to double for FlSpot.
               data[index],
             ),
           ),
