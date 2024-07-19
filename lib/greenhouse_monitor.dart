@@ -3,34 +3,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
 
 void main() {
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: GreenhouseMonitor(),
     );
   }
 }
 
 class GreenhouseMonitor extends ConsumerWidget {
+  const GreenhouseMonitor({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Greenhouse Monitor')),
+      appBar: AppBar(title: const Text('Greenhouse Monitor')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Temperature: ${greenhouseData.temperature}°C',
-                style: TextStyle(fontSize: 24)),
-            SizedBox(height: 20),
+                style: const TextStyle(fontSize: 24)),
+            const SizedBox(height: 20),
             Text('Humidity: ${greenhouseData.humidity}%',
-                style: TextStyle(fontSize: 24)),
+                style: const TextStyle(fontSize: 24)),
           ],
         ),
       ),
@@ -46,7 +50,7 @@ class GreenhouseMonitor extends ConsumerWidget {
                   .read(greenhouseViewModelProvider.notifier)
                   .updateHumidity(60.0);
             },
-            child: Icon(Icons.update),
+            child: const Icon(Icons.update),
           ),
         ],
       ),
