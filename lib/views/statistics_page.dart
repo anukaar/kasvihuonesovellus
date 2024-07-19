@@ -2,107 +2,65 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
-import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 
-// Creating a ConsumerWidget for Riverpod state management
 class StatisticsPage extends ConsumerWidget {
+  // Change to ConsumerWidget
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final greenhouseData = ref.watch(
-        greenhouseViewModelProvider); // Watching the greenhouse view model provider for data.
+    // Add WidgetRef
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Tilastot'),
+        backgroundColor: Colors.white.withOpacity(0.7),
+        elevation: 0,
+        centerTitle: true,
+        title: Text('Kasvihuone', style: GoogleFonts.pacifico(fontSize: 50)),
+        toolbarHeight: 120,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: buildChartSection(
-                context: context,
-                title: 'Lämpötila: ',
-                data: greenhouseData
-                    .temperatures, // Passing temperature data to the chart.
-                timestamps: greenhouseData
-                    .timestamps, // Passing timestamps to the chart.
-                color: Colors.orange,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("images/background.jpg"),
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(
-              height: 16.0, // Adding vertical space between chart sections.
-            ),
-            Expanded(
-              child: buildChartSection(
-                context: context,
-                title: 'Kosteus: ',
-                data: greenhouseData
-                    .humidities, // Passing humidity data to the chart.
-                timestamps: greenhouseData
-                    .timestamps, // Passing timestamps to the chart.
-                color: Colors.blue,
+          ),
+          const Positioned(
+            top: kToolbarHeight + 150,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'Historia',
+                style: TextStyle(fontSize: 36),
               ),
             ),
-            SizedBox(
-              height: 10.0,
+          ),
+          const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Lämpötila', style: TextStyle(fontSize: 24)),
+                SizedBox(height: 8),
+                Text('Kosteus', style: TextStyle(fontSize: 24)),
+              ],
             ),
-            ElevatedButton(
+          ),
+          Positioned(
+            right: 16,
+            bottom: 150,
+            child: FloatingActionButton(
               onPressed: () {
                 ref
                     .read(greenhouseViewModelProvider.notifier)
-                    .fetchData(); // Fetching new data when button is pressed.
+                    .updateTemperature(25.0);
+                ref
+                    .read(greenhouseViewModelProvider.notifier)
+                    .updateHumidity(60.0);
               },
-              child: Text('Fetch Data'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // setting up the chart appearance
-  Widget buildChartSection({
-    required BuildContext context,
-    required String title,
-    required List<double> data,
-    required List<DateTime> // Data points for the chart.
-        timestamps, // Timestamps corresponding to the data points.
-    required Color color,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.lightGreenAccent,
-        borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(
-                0.5), // Adding a shadow with grey color and opacity.
-            spreadRadius: 5, // Setting the spread radius for the shadow.
-            blurRadius: 7, // Setting the blur radius for the shadow.
-            offset: Offset(0, 3), // Setting the offset for the shadow.
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.lato(
-              textStyle: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-            ),
-          ),
-          SizedBox(height: 10.0),
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1.5, // Adjusted aspect ratio for better use of space
-              child: LineChartWidget(
-                // passing data and timestamps to the LineChartWidget, setting the color
-                data: data,
-                timestamps: timestamps,
-                color: color,
-              ),
+              child: const Icon(Icons.update),
             ),
           ),
         ],
