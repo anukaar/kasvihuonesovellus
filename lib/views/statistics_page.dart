@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
-import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 
 class StatisticsPage extends ConsumerWidget {
+  // Change to ConsumerWidget
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
@@ -28,8 +28,10 @@ class StatisticsPage extends ConsumerWidget {
               ),
             ),
           ),
-          Positioned(
-            top: kToolbarHeight + 50,
+
+          const Positioned(
+
+            top: kToolbarHeight + 150,
             left: 0,
             right: 0,
             child: Center(),
