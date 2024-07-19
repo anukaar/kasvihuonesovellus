@@ -19,21 +19,33 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart), label: 'Statistics'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
-        ],
+      bottomNavigationBar: Container(
+        height: 120,
+        child: BottomNavigationBar(
+          backgroundColor: Colors.white.withOpacity(0.5),
+          elevation: 0,
+          currentIndex: _currentIndex,
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.black87,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home, size: 60), label: 'Koti'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.bar_chart, size: 60), label: 'Historia'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings, size: 60), label: 'Asetukset'),
+          ],
+          selectedLabelStyle:
+              TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          unselectedLabelStyle: TextStyle(fontSize: 20),
+        ),
       ),
     );
   }
