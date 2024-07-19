@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -9,138 +10,118 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+
   final TextEditingController _minTemperatureController = TextEditingController();
   final TextEditingController _maxTemperatureController = TextEditingController();
   final TextEditingController _minHumidityController = TextEditingController();
   final TextEditingController _maxHumidityController = TextEditingController();
 
-  void _saveSettings() {
-    // Yritetään muuntaa syötetyt arvot liukuluvuiksi (double)
-    final double? minTemperature = double.tryParse(_minTemperatureController.text);
-    final double? maxTemperature = double.tryParse(_maxTemperatureController.text);
-    final double? minHumidity = double.tryParse(_minHumidityController.text);
-    final double? maxHumidity = double.tryParse(_maxHumidityController.text);
-
-    if (minTemperature != null && maxTemperature != null &&
-        minHumidity != null && maxHumidity != null) {
-      // Tarkistetaan, että syötetyt arvot ovat kelvollisissa rajoissa
-      if (minTemperature >= -50 && maxTemperature <= 50 &&
-          minHumidity >= 0 && maxHumidity <= 100 &&
-          minTemperature <= maxTemperature && minHumidity <= maxHumidity) {
-        // Tallenna lämpötilan ja kosteuden raja-arvot
-        // Tässä voisi lisätä koodin tallentaaksesi nämä arvot johonkin tietovarastoon tai tilaan
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Asetukset tallennettu: Lämpötila: $minTemperature - $maxTemperature °C, Kosteus: $minHumidity - $maxHumidity %')),
-        );
-      } else {
-        // Näytä virheilmoitus, jos arvot eivät ole kelvollisissa rajoissa
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Syötä kelvolliset arvot: Lämpötila (-50°C - 50°C) ja Kosteus (0% - 100%) ja rajojen järjestys')),
-        );
-      }
-    } else {
-      // Näytä virheilmoitus, jos syöte ei ole kelvollinen luku
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Syötä kelvolliset arvot')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Kasvihuoneeni')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Asetukset', style: TextStyle(fontSize: 24)),
-            const SizedBox(height: 20),
-            // Syötekenttä lämpötilan ala- ja ylärajoille
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _minTemperatureController,
-                    decoration: const InputDecoration(
-                      labelText: 'Lämpötila alaraja (°C)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,1}$')),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _maxTemperatureController,
-                    decoration: const InputDecoration(
-                      labelText: 'Lämpötila yläraja (°C)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,1}$')),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Syötekenttä kosteuden ala- ja ylärajoille
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _minHumidityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Kosteus alaraja (%)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}$')),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextField(
-                    controller: _maxHumidityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Kosteus yläraja (%)',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}$')),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Tallenna-painike, joka kutsuu _saveSettings-metodia
-            ElevatedButton(
-              onPressed: _saveSettings,
-              child: const Text('Aseta'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  // Vapautetaan kontrollerien käyttämät resurssit, kun widget tuhotaan
   @override
   void dispose() {
-    // Vapauta muistiresurssit käytön jälkeen
     _minTemperatureController.dispose();
     _maxTemperatureController.dispose();
     _minHumidityController.dispose();
     _maxHumidityController.dispose();
     super.dispose();
+  }
+
+  // Tallennetaan asetukset, JOS arvot kelvolliset
+  void _saveSettings() {
+    final double? minTemperature = double.tryParse(_minTemperatureController.text);
+    final double? maxTemperature = double.tryParse(_maxTemperatureController.text);
+    final double? minHumidity = double.tryParse(_minHumidityController.text);
+    final double? maxHumidity = double.tryParse(_maxHumidityController.text);
+
+    if (_areValuesValid(minTemperature, maxTemperature, minHumidity, maxHumidity)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Asetukset tallennettu: Lämpötila: $minTemperature - $maxTemperature °C, Kosteus: $minHumidity - $maxHumidity %')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Syötä kelvolliset arvot: Lämpötila (-50°C - 50°C) & Kosteus (0% - 100%)')),
+      );
+    }
+  }
+
+  // Tarkistetaan syötetyt arvot
+  bool _areValuesValid(double? minTemperature, double? maxTemperature, double? minHumidity, double? maxHumidity) {
+    return minTemperature != null && maxTemperature != null &&
+        minHumidity != null && maxHumidity != null &&
+        minTemperature >= -50 && maxTemperature <= 50 &&
+        minHumidity >= 0 && maxHumidity <= 100 &&
+        minTemperature <= maxTemperature && minHumidity <= maxHumidity;
+  }
+  // Tekstikenttä
+  Widget _buildTextField(String label, TextEditingController controller, String suffix, IconData? prefixIcon) {
+    return Expanded(
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+          fillColor: Colors.white,
+          filled: true,
+          prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+          suffixText: suffix,
+        ),
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,1}$')),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Kasvihuoneeni',
+          style: GoogleFonts.lobster(), // Muuttaa fonttia AppBarissa
+        ),
+        centerTitle: true, // Keskittää otsikon AppBarissa
+        backgroundColor: Colors.green, // Tummanvihreä yläpalkki
+      ),
+      backgroundColor: Colors.lightGreen[100], // Vaaleanvihreä taustaväri
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Asetukset',
+                style: GoogleFonts.lobster(fontSize: 24), // Muuttaa fonttia
+              ),
+              const SizedBox(height: 20),
+              // Rivi lämpötilan ala- ja ylärajojen tekstikentille
+              Row(
+                children: [
+                  _buildTextField('Lämpötila alaraja', _minTemperatureController, '°C', Icons.thermostat),
+                  const SizedBox(width: 10),
+                  _buildTextField('Lämpötila yläraja', _maxTemperatureController, '°C', Icons.thermostat),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  _buildTextField('Kosteus alaraja', _minHumidityController, '%', Icons.water),
+                  const SizedBox(width: 10),
+                  _buildTextField('Kosteus yläraja', _maxHumidityController, '%', Icons.water),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Tallenna-painike, joka kutsuu _saveSettings-metodia
+              ElevatedButton(
+                onPressed: _saveSettings,
+                child: const Text('Tallenna'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
