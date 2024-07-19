@@ -50,7 +50,7 @@ class _LineChartWidget extends StatelessWidget {
         gridData: gridData(),
         titlesData: titlesData(),
         borderData: borderData(),
-        backgroundColor: Colors.lightGreen.withOpacity(0.3),
+        backgroundColor: Colors.lightGreen.withOpacity(0.7),
         lineBarsData: lineBarsData(),
         // setting the min and max values for x-axis
         minX: timestamps.first.millisecondsSinceEpoch.toDouble(),
@@ -141,7 +141,7 @@ class _LineChartWidget extends StatelessWidget {
         show: true,
         border: Border(
           bottom: BorderSide(
-            color: Colors.lightGreenAccent.withOpacity(0.2),
+            color: Colors.lightGreen.withOpacity(0.7),
             width: 4,
           ),
           left: const BorderSide(color: Colors.transparent),

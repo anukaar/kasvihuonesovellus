@@ -34,55 +34,42 @@ class StatisticsPage extends ConsumerWidget {
             top: kToolbarHeight + 150,
             left: 0,
             right: 0,
-            child: Center(
-              child: Text(
-                'Historia',
-                style: TextStyle(fontSize: 36),
-              ),
-            ),
+            child: Center(),
           ),
           Positioned.fill(
-            top: kToolbarHeight + 200,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: buildChartSection(
+            top: kToolbarHeight + 100,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    buildChartSection(
                       context: context,
                       title: 'Lämpötila: ',
                       data: greenhouseData.temperatures,
                       timestamps: greenhouseData.timestamps,
                       color: Colors.orange,
                     ),
-                  ),
-                  SizedBox(height: 16.0),
-                  Expanded(
-                    child: buildChartSection(
+                    SizedBox(height: 16.0),
+                    buildChartSection(
                       context: context,
                       title: 'Kosteus: ',
                       data: greenhouseData.humidities,
                       timestamps: greenhouseData.timestamps,
                       color: Colors.blue,
                     ),
-                  ),
-                  SizedBox(height: 10.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      ref
-                          .read(greenhouseViewModelProvider.notifier)
-                          .fetchData();
-                    },
-                    child: Text('Fetch Data'),
-                  ),
-                ],
+                    SizedBox(
+                        height:
+                            100.0), // Add space to push the button above the bottom nav bar
+                  ],
+                ),
               ),
             ),
           ),
-          /* 
-          Positioned(
+          /*Positioned(
             right: 16,
-            bottom: 150,
+            bottom:
+                100, // Adjusted to be clearly above the bottom navigation bar
             child: FloatingActionButton(
               onPressed: () {
                 ref
@@ -95,6 +82,28 @@ class StatisticsPage extends ConsumerWidget {
               child: const Icon(Icons.update),
             ),
           ),*/
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 130.0), // Ensure padding above the bottom nav bar
+              child: ElevatedButton(
+                onPressed: () {
+                  ref.read(greenhouseViewModelProvider.notifier).fetchData();
+                },
+                child: Text(
+                  'Hae tiedot',
+                  style: GoogleFonts.lato(fontSize: 18, color: Colors.black),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.lightGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -110,7 +119,7 @@ class StatisticsPage extends ConsumerWidget {
     return Container(
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.lightGreenAccent,
+        color: Colors.lightGreen.withOpacity(0.7),
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(
@@ -131,14 +140,12 @@ class StatisticsPage extends ConsumerWidget {
             ),
           ),
           SizedBox(height: 10.0),
-          Expanded(
-            child: AspectRatio(
-              aspectRatio: 1.5,
-              child: LineChartWidget(
-                data: data,
-                timestamps: timestamps,
-                color: color,
-              ),
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: LineChartWidget(
+              data: data,
+              timestamps: timestamps,
+              color: color,
             ),
           ),
         ],
