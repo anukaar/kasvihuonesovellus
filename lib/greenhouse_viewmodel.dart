@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kasvihuonesovellus/models/greenhouse_data.dart';
+import 'package:kasvihuonesovellus/services/simulated_bluetooth_service.dart';
 
 final greenhouseViewModelProvider =
     StateNotifierProvider<GreenhouseViewModel, GreenhouseData>(
@@ -7,16 +8,30 @@ final greenhouseViewModelProvider =
 );
 
 class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
+  final SimulatedBluetoothService _bluetoothService =
+      SimulatedBluetoothService(); // creating an instance of SimulatedBluetoothService
   GreenhouseViewModel()
-      : super(GreenhouseData(temperature: 0.0, humidity: 0.0));
+      : super(GreenhouseData
+            .initial()); // initializing the state with initial GreenhouseData
 
-  void updateTemperature(double newTemperature) {
-    state =
-        GreenhouseData(temperature: newTemperature, humidity: state.humidity);
+  // method for adding new temperature, humidity and timestamp to the list
+  void updateData(
+      double newTemperature, double newHumidity, DateTime timestamp) {
+    state = state.copyWith(
+      temperatures: List.from(state.temperatures)..add(newTemperature),
+      humidities: List.from(state.humidities)..add(newHumidity),
+      timestamps: List.from(state.timestamps)..add(timestamp),
+    );
   }
 
-  void updateHumidity(double newHumidity) {
-    state =
-        GreenhouseData(temperature: state.temperature, humidity: newHumidity);
+  // method for fetching new temperature and humidity from the Bluetooth service
+  void fetchData() async {
+    double newTemperature = await _bluetoothService.getTemperature();
+    double newHumidity = await _bluetoothService.getHumidity();
+    DateTime timestamp =
+        DateTime.now(); // getting the current time as a timestamp
+
+    updateData(newTemperature, newHumidity,
+        timestamp); // updating the state with new data
   }
 }

@@ -38,22 +38,6 @@ class GreenhouseMonitor extends ConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              ref
-                  .read(greenhouseViewModelProvider.notifier)
-                  .updateTemperature(25.0);
-              ref
-                  .read(greenhouseViewModelProvider.notifier)
-                  .updateHumidity(60.0);
-            },
-            child: const Icon(Icons.update),
-          ),
-        ],
-      ),
     );
   }
 }
