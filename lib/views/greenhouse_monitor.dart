@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
 
 class GreenhouseMonitor extends ConsumerWidget {
   @override
@@ -39,7 +39,7 @@ class GreenhouseMonitor extends ConsumerWidget {
               ],
             ),
           ),
-          Positioned(
+          /* Positioned(
             right: 16,
             bottom: 150,
             child: FloatingActionButton(
@@ -53,7 +53,7 @@ class GreenhouseMonitor extends ConsumerWidget {
               },
               child: const Icon(Icons.update),
             ),
-          ),
+          ),*/
         ],
       ),
     );
