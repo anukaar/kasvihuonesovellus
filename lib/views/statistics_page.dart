@@ -4,69 +4,104 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
 import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 
-// Creating a ConsumerWidget for Riverpod state management
 class StatisticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final greenhouseData = ref.watch(
-        greenhouseViewModelProvider); // Watching the greenhouse view model provider for data.
+    final greenhouseData = ref.watch(greenhouseViewModelProvider);
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text('Tilastot'),
+        backgroundColor: Colors.white.withOpacity(0.7),
+        elevation: 0,
+        centerTitle: true,
+        title: Text('Kasvihuone', style: GoogleFonts.pacifico(fontSize: 50)),
+        toolbarHeight: 120,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: buildChartSection(
-                context: context,
-                title: 'Lämpötila: ',
-                data: greenhouseData
-                    .temperatures, // Passing temperature data to the chart.
-                timestamps: greenhouseData
-                    .timestamps, // Passing timestamps to the chart.
-                color: Colors.orange,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage("images/background.jpg"),
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(
-              height: 16.0, // Adding vertical space between chart sections.
-            ),
-            Expanded(
-              child: buildChartSection(
-                context: context,
-                title: 'Kosteus: ',
-                data: greenhouseData
-                    .humidities, // Passing humidity data to the chart.
-                timestamps: greenhouseData
-                    .timestamps, // Passing timestamps to the chart.
-                color: Colors.blue,
+          ),
+          Positioned(
+            top: kToolbarHeight + 150,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                'Historia',
+                style: TextStyle(fontSize: 36),
               ),
             ),
-            SizedBox(
-              height: 10.0,
+          ),
+          Positioned.fill(
+            top: kToolbarHeight + 200,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: buildChartSection(
+                      context: context,
+                      title: 'Lämpötila: ',
+                      data: greenhouseData.temperatures,
+                      timestamps: greenhouseData.timestamps,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Expanded(
+                    child: buildChartSection(
+                      context: context,
+                      title: 'Kosteus: ',
+                      data: greenhouseData.humidities,
+                      timestamps: greenhouseData.timestamps,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref
+                          .read(greenhouseViewModelProvider.notifier)
+                          .fetchData();
+                    },
+                    child: Text('Fetch Data'),
+                  ),
+                ],
+              ),
             ),
-            ElevatedButton(
+          ),
+          /* Positioned(
+            right: 16,
+            bottom: 150,
+            child: FloatingActionButton(
               onPressed: () {
                 ref
                     .read(greenhouseViewModelProvider.notifier)
-                    .fetchData(); // Fetching new data when button is pressed.
+                    .updateTemperature(25.0);
+                ref
+                    .read(greenhouseViewModelProvider.notifier)
+                    .updateHumidity(60.0);
               },
-              child: Text('Fetch Data'),
+              child: const Icon(Icons.update),
             ),
-          ],
-        ),
+          ),*/
+        ],
       ),
     );
   }
 
-  // setting up the chart appearance
   Widget buildChartSection({
     required BuildContext context,
     required String title,
     required List<double> data,
-    required List<DateTime> // Data points for the chart.
-        timestamps, // Timestamps corresponding to the data points.
+    required List<DateTime> timestamps,
     required Color color,
   }) {
     return Container(
@@ -76,11 +111,10 @@ class StatisticsPage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(8.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(
-                0.5), // Adding a shadow with grey color and opacity.
-            spreadRadius: 5, // Setting the spread radius for the shadow.
-            blurRadius: 7, // Setting the blur radius for the shadow.
-            offset: Offset(0, 3), // Setting the offset for the shadow.
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
           ),
         ],
       ),
@@ -96,9 +130,8 @@ class StatisticsPage extends ConsumerWidget {
           SizedBox(height: 10.0),
           Expanded(
             child: AspectRatio(
-              aspectRatio: 1.5, // Adjusted aspect ratio for better use of space
+              aspectRatio: 1.5,
               child: LineChartWidget(
-                // passing data and timestamps to the LineChartWidget, setting the color
                 data: data,
                 timestamps: timestamps,
                 color: color,
