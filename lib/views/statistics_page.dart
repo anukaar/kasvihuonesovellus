@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
 
+import '../widgets/line_chart_widget.dart';
+
 class StatisticsPage extends ConsumerWidget {
   // Change to ConsumerWidget
   @override
@@ -28,9 +30,7 @@ class StatisticsPage extends ConsumerWidget {
               ),
             ),
           ),
-
           const Positioned(
-
             top: kToolbarHeight + 150,
             left: 0,
             right: 0,
@@ -91,15 +91,15 @@ class StatisticsPage extends ConsumerWidget {
                 onPressed: () {
                   ref.read(greenhouseViewModelProvider.notifier).fetchData();
                 },
-                child: Text(
-                  'Hae tiedot',
-                  style: GoogleFonts.lato(fontSize: 18, color: Colors.black),
-                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.lightGreen,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
                   ),
+                ),
+                child: const Text(
+                  'Hae tiedot',
+                  style: TextStyle(fontSize: 20),
                 ),
               ),
             ),

@@ -118,7 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   Text(
                     'Asetukset',
-                    style: GoogleFonts.lobster(fontSize: 24), // Muuttaa fonttia
+                    style: TextStyle(fontSize: 20), // Muuttaa fonttia
                   ),
                   const SizedBox(height: 20),
                   // Rivi lämpötilan ala- ja ylärajojen tekstikentille
