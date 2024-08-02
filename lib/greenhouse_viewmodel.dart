@@ -10,6 +10,7 @@ final greenhouseViewModelProvider =
 class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
   final SimulatedBluetoothService _bluetoothService =
       SimulatedBluetoothService(); // creating an instance of SimulatedBluetoothService
+
   GreenhouseViewModel()
       : super(GreenhouseData
             .initial()); // initializing the state with initial GreenhouseData
@@ -33,5 +34,19 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
 
     updateData(newTemperature, newHumidity,
         timestamp); // updating the state with new data
+  }
+
+  // method for updating the temperature directly
+  void updateTemperature(double newTemperature) {
+    state = state.copyWith(
+      temperatures: List.from(state.temperatures)..add(newTemperature),
+    );
+  }
+
+  // method for updating the humidity directly
+  void updateHumidity(double newHumidity) {
+    state = state.copyWith(
+      humidities: List.from(state.humidities)..add(newHumidity),
+    );
   }
 }
