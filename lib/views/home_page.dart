@@ -4,6 +4,8 @@ import 'package:kasvihuonesovellus/views/settings_page.dart';
 import 'package:kasvihuonesovellus/views/statistics_page.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -38,7 +40,7 @@ class _HomePageState extends State<HomePage> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.home, size: 60), label: 'Koti'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.bar_chart, size: 60), label: 'Historia'),
+                icon: Icon(Icons.bar_chart, size: 60), label: 'Tilastot'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.settings, size: 60), label: 'Asetukset'),
           ],
