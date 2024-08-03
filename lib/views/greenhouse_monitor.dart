@@ -128,7 +128,7 @@ class GreenhouseMonitor extends ConsumerWidget {
           ),
           Positioned(
             right: 16,
-            bottom: 140,
+            bottom: 145,
             child: FloatingActionButton(
               onPressed: () {
                 ref
