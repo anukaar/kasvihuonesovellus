@@ -58,35 +58,16 @@ class StatisticsPage extends ConsumerWidget {
                       timestamps: greenhouseData.timestamps,
                       color: Colors.blue,
                     ),
-                    SizedBox(
-                        height:
-                            100.0), // Add space to push the button above the bottom nav bar
+                    SizedBox(height: 100.0),
                   ],
                 ),
               ),
             ),
           ),
-          /*Positioned(
-            right: 16,
-            bottom:
-                100, // Adjusted to be clearly above the bottom navigation bar
-            child: FloatingActionButton(
-              onPressed: () {
-                ref
-                    .read(greenhouseViewModelProvider.notifier)
-                    .updateTemperature(25.0);
-                ref
-                    .read(greenhouseViewModelProvider.notifier)
-                    .updateHumidity(60.0);
-              },
-              child: const Icon(Icons.update),
-            ),
-          ),*/
           Align(
             alignment: Alignment.topCenter,
             child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 130.0), // Ensure padding above the bottom nav bar
+              padding: const EdgeInsets.only(top: 130.0),
               child: ElevatedButton(
                 onPressed: () {
                   ref.read(greenhouseViewModelProvider.notifier).fetchData();
