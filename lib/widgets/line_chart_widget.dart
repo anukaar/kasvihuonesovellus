@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class LineChartWidget extends StatelessWidget {
-  final List<double> data; // List of data points for the chart.
+  final List<double> data; // luodaan lista kaavion datapisteille
   final List<DateTime>
-      timestamps; // List of timestamps corresponding to the data points.
+      timestamps; // luodaan lista datapisteitä vastaaville aikaleimoille
   final Color color;
 
   const LineChartWidget({
@@ -17,9 +17,18 @@ class LineChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // tarkista, onko aikaleiman data tyhjä
+    if (data.isEmpty || timestamps.isEmpty) {
+      return Center(
+        child: Text(
+          'Tietoja ei saatavilla', // jos aikaleiman data on tyhjä, palauta tämä teksti
+          style: TextStyle(color: Colors.red),
+        ),
+      );
+    }
     return Container(
-      color: Colors.lightGreenAccent,
-      // passing data, timestamps and color to private _LineChartWidget
+      color: Colors.lightGreenAccent.withOpacity(0.5),
+      // välitetään data, aikaleimat ja väri yksityiselle _LineChartWidget
       child: _LineChartWidget(
         data: data,
         timestamps: timestamps,
@@ -44,18 +53,18 @@ class _LineChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LineChart(
-      // setting all the data for the chart
+      // määritellään kaavion rakenne
       LineChartData(
         lineTouchData: lineTouchData(),
         gridData: gridData(),
         titlesData: titlesData(),
         borderData: borderData(),
-        backgroundColor: Colors.lightGreen.withOpacity(0.7),
+        backgroundColor: Colors.grey.withOpacity(0.7),
         lineBarsData: lineBarsData(),
-        // setting the min and max values for x-axis
+        // asetetaan x-akselin minimi- ja maksimiarvot
         minX: timestamps.first.millisecondsSinceEpoch.toDouble(),
         maxX: timestamps.last.millisecondsSinceEpoch.toDouble(),
-        // finding the min and max values for the y-axis
+        // asetetaan y-akselin minimi- ja maksimiarvot
         minY:
             data.reduce((value, element) => value < element ? value : element),
         maxY:
@@ -65,7 +74,7 @@ class _LineChartWidget extends StatelessWidget {
   }
 
   LineTouchData lineTouchData() => LineTouchData(
-        // setting touched spots and tooltips in the line
+        // määritetään kaavion viivan arvopisteet ja selitystekstit
         handleBuiltInTouches: true,
         getTouchedSpotIndicator:
             (LineChartBarData barData, List<int> spotIndexes) {
@@ -81,7 +90,7 @@ class _LineChartWidget extends StatelessWidget {
             return touchedSpots.map((touchedSpot) {
               final flSpot = touchedSpot;
               return LineTooltipItem(
-                '${flSpot.y.toStringAsFixed(1)}',
+                '${flSpot.y.toStringAsFixed(1)}', // pyöristetään y-akselin arvo 1 desimaaliin
                 const TextStyle(color: Colors.white),
               );
             }).toList();
@@ -90,13 +99,13 @@ class _LineChartWidget extends StatelessWidget {
       );
 
   FlGridData gridData() => FlGridData(
-        //setting the appearance of the grid
+        //määritetään ruudukon ulkoasu
         show: true,
         drawVerticalLine: true,
         horizontalInterval: 1,
         verticalInterval: 1,
         getDrawingHorizontalLine: (double _) => FlLine(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.green.withOpacity(0.2),
           strokeWidth: 1,
         ),
         getDrawingVerticalLine: (double _) => FlLine(
@@ -106,7 +115,7 @@ class _LineChartWidget extends StatelessWidget {
       );
 
   FlTitlesData titlesData() => FlTitlesData(
-        // setting titles of the chart to be visible or not
+        // asetetaaan kaavioiden otsikoiden näkyvyys
         show: true,
         rightTitles: const AxisTitles(
           sideTitles: SideTitles(showTitles: false),
@@ -118,31 +127,44 @@ class _LineChartWidget extends StatelessWidget {
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (value, meta) {
-              DateTime date = DateTime.fromMillisecondsSinceEpoch(
-                  value.toInt()); // converting value to DateTime
-              return Text(DateFormat('dd/MM')
-                  .format(date)); // formatting date and returning it as text
+              DateTime date =
+                  DateTime.fromMillisecondsSinceEpoch(value.toInt());
+              return SideTitleWidget(
+                axisSide: meta.axisSide,
+                space: 4, // akselin ja otsikoiden riviväli
+                child: Transform.rotate(
+                  angle: -45 * 3.14159 / 180, // tekstin kääntö 45 astetta
+                  child: Text(
+                    DateFormat('dd/MM').format(date),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              );
             },
+            /* interval: (timestamps.last.millisecondsSinceEpoch -
+                        timestamps.first.millisecondsSinceEpoch)
+                    .toDouble() /
+                5,*/
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
             getTitlesWidget: (value, meta) {
-              return Text(value.toStringAsFixed(
-                  0)); // formatting value and returning it as text
+              return Text(value
+                  .toStringAsFixed(0)); // arvon muotoilu ja palautus tekstinä
             },
           ),
         ),
       );
 
   FlBorderData borderData() => FlBorderData(
-        // setting borders appearance
+        // asetetaan kaavion reunojen ulkoasu
         show: true,
         border: Border(
           bottom: BorderSide(
-            color: Colors.lightGreen.withOpacity(0.7),
-            width: 4,
+            color: Colors.lightGreenAccent.withOpacity(0.1),
+            width: 5,
           ),
           left: const BorderSide(color: Colors.transparent),
           right: const BorderSide(color: Colors.transparent),
@@ -157,7 +179,7 @@ class _LineChartWidget extends StatelessWidget {
             (index) => FlSpot(
               timestamps[index]
                   .millisecondsSinceEpoch
-                  .toDouble(), // Converting timestamp to double for FlSpot.
+                  .toDouble(), // muunnetaan aikaleima double-arvoksi FlSpot:a varten
               data[index],
             ),
           ),
