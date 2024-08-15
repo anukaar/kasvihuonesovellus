@@ -8,9 +8,8 @@ class GreenhouseMonitor extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
 
-    // tarkista, onko dataa saatavilla
-    if (greenhouseData.temperatures.isEmpty ||
-        greenhouseData.humidities.isEmpty) {
+    // Tarkista, onko dataa saatavilla
+    if (greenhouseData.temperatures.isEmpty || greenhouseData.humidities.isEmpty) {
       return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
@@ -40,10 +39,17 @@ class GreenhouseMonitor extends ConsumerWidget {
         ),
       );
     }
+
     // Muunna viimeisin lämpötila ja kosteus desimaaleiksi ja pyöristä yhteen desimaaliin
-    final latestTemperature =
-        greenhouseData.temperatures.last.toStringAsFixed(1);
+    final latestTemperature = greenhouseData.temperatures.last.toStringAsFixed(1);
     final latestHumidity = greenhouseData.humidities.last.toStringAsFixed(1);
+
+    final List<String> notifications = [
+      'Ilmoitus',
+      'Ilmoitus',
+      'Ilmoitus',
+    ];
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -52,6 +58,30 @@ class GreenhouseMonitor extends ConsumerWidget {
         centerTitle: true,
         title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 50)),
         toolbarHeight: 120,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 50.0),
+            child: Transform.scale(
+              scale: 1.5,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.notifications),
+                onSelected: (String result) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(result)),
+                  );
+                },
+                itemBuilder: (BuildContext context) {
+                  return notifications.map((String notification) {
+                    return PopupMenuItem<String>(
+                      value: notification,
+                      child: Text(notification),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -86,17 +116,15 @@ class GreenhouseMonitor extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'Lämpötila',
+                      const Text(
+                        "Lämpötila",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 10, width: 10),
-                      Text(
-                        '$latestTemperature°C',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                      const SizedBox(height: 10, width: 10),
+                      Text('$latestTemperature°C',
+                          style: TextStyle(fontSize: 24)),
                     ],
                   ),
                 ),
@@ -119,32 +147,31 @@ class GreenhouseMonitor extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        'Kosteus: ',
+                        'Kosteus',
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        '$latestHumidity%',
-                        style: TextStyle(fontSize: 24),
-                      ),
+                      const SizedBox(height: 10, width: 10),
+                      Text('$latestHumidity%',
+                          style: TextStyle(fontSize: 24)),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          /*Positioned(
+          Positioned(
             right: 16,
-            bottom: 150,
+            bottom: 145,
             child: FloatingActionButton(
               onPressed: () {
                 ref
                     .read(greenhouseViewModelProvider.notifier)
-                    .updateData(25, 60, DateTime.timestamp());
+                    .updateData(25, 60, DateTime.now());
               },
               child: const Icon(Icons.update),
             ),
-          ),*/
+          ),
         ],
       ),
     );

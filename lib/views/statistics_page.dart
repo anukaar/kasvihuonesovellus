@@ -7,31 +7,31 @@ import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 class StatisticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // haetaan kasvihuoneen tiedot viewmodelista
+    // Haetaan kasvihuoneen tiedot viewmodelista
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
-    // haetaan ensimmäinen yhdistetty laite, jos sellainen on olemassa
+    // Haetaan ensimmäinen yhdistetty laite, jos sellainen on olemassa
     final connectedDevice =
         greenhouseData.devices.isNotEmpty ? greenhouseData.devices.first : null;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,  //AppBar ulottuu taustakuvan päälle
+      extendBodyBehindAppBar: true, // AppBar ulottuu taustakuvan päälle
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.7),  //läpikuultava tausta
+        backgroundColor: Colors.white.withOpacity(0.7), // läpikuultava tausta
         elevation: 0,
         centerTitle: true,
         title: Column(
           children: [
-            // otsikon tekstiominaisuudet
+            // Otsikon tekstiominaisuudet
             Text(
               'Kasvihuone',
               style: GoogleFonts.pacifico(fontSize: 50),
             ),
-            // jos laite on yhdistetty, näytetään laitteen nimi ja tila
+            // Jos laite on yhdistetty, näytetään laitteen nimi ja tila
             if (connectedDevice != null) ...[
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // näytetään laitteen nimi tai "unknown device", jos nimeä ei ole
+                  // Näytetään laitteen nimi tai "Unknown device", jos nimeä ei ole
                   Text(
                     connectedDevice.name.isNotEmpty
                         ? connectedDevice.name
@@ -40,7 +40,7 @@ class StatisticsPage extends ConsumerWidget {
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 8.0),
-                  // vihreä ympyrä osoittaa yhteyden tilan
+                  // Vihreä ympyrä osoittaa yhteyden tilan
                   Icon(
                     Icons.circle,
                     color: Colors.green,
@@ -59,24 +59,23 @@ class StatisticsPage extends ConsumerWidget {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/images/background.jpg"),
-                fit: BoxFit.cover,  //taustakuva täyttää koko tilan
+                fit: BoxFit.cover, // Taustakuva täyttää koko tilan
               ),
             ),
           ),
-          // scrollaava sisältöalue
           Positioned.fill(
-            top: kToolbarHeight + 100,  //jättää tilaa AppBarille ja ylämarginaalille
+            top: kToolbarHeight + 100, // Jättää tilaa AppBarille ja ylämarginaalille
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    // jos dataa ei ole vielä ladattu, näytä latausindikaattori
+                    // Jos dataa ei ole vielä ladattu, näytä latausindikaattori
                     if (greenhouseData.temperatures.isEmpty ||
                         greenhouseData.humidities.isEmpty)
                       CircularProgressIndicator()
                     else ...[
-                      // muuten näytä lämpötilakaavio
+                      // Muussa tapauksessa näytetään lämpötilakaavio
                       buildChartSectionTemperature(
                         context: context,
                         title: 'Lämpötila: ',
@@ -85,7 +84,7 @@ class StatisticsPage extends ConsumerWidget {
                         color: Colors.orange,
                       ),
                       SizedBox(height: 16.0),
-                      // näytä myös kosteuskaavio
+                      // Näytetään myös kosteuskaavio
                       buildChartSectionHumidity(
                         context: context,
                         title: 'Kosteus: ',
@@ -93,12 +92,13 @@ class StatisticsPage extends ConsumerWidget {
                         timestamps: greenhouseData.timestamps,
                         color: Colors.blue,
                       ),
+                      SizedBox(height: 100.0), // Lisätilaa alareunaan
                     ],
                     SizedBox(height: 10.0),
-                    // nappi, jolla voi etsiä tarvittaessa RuuviTagia
+                    // Nappi, jolla voi etsiä tarvittaessa RuuviTagia
                     ElevatedButton(
                       onPressed: () {
-                        // käynnistetään Bluetooth-skannnus viewmodelista
+                        // Käynnistetään Bluetooth-skannaus viewmodelista
                         ref
                             .read(greenhouseViewModelProvider.notifier)
                             .startScan();
@@ -118,7 +118,6 @@ class StatisticsPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 120.0),  //lisätilaa alareunaan
                   ],
                 ),
               ),
@@ -128,7 +127,8 @@ class StatisticsPage extends ConsumerWidget {
       ),
     );
   }
-  // funktio lämpötilakaavion luomiseen
+
+  // Funktio lämpötilakaavion luomiseen
   Widget buildChartSectionTemperature({
     required BuildContext context,
     required String title,
@@ -137,13 +137,13 @@ class StatisticsPage extends ConsumerWidget {
     required Color color,
   }) {
     return Container(
-      // ulkoasun asettelut kaavion taustalla olevalle tilalle
+      // Ulkoasun asettelut kaavion taustalla olevalle tilalle
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.lightGreen.withOpacity(0.6),  //taustan väri
-        borderRadius: BorderRadius.circular(8.0),  // pyöristetyt kulmat
+        color: Colors.lightGreen.withOpacity(0.6), // Taustan väri
+        borderRadius: BorderRadius.circular(8.0), // Pyöristetyt kulmat
         boxShadow: [
-          // varjoefekti
+          // Varjoefekti
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 5,
@@ -153,7 +153,7 @@ class StatisticsPage extends ConsumerWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,  //tasaus vasemmalle
+        crossAxisAlignment: CrossAxisAlignment.start, // Tasaus vasemmalle
         children: [
           Text(
             title,
@@ -162,7 +162,7 @@ class StatisticsPage extends ConsumerWidget {
             ),
           ),
           SizedBox(height: 10.0),
-          // kaavion kuvasuhde
+          // Kaavion kuvasuhde
           AspectRatio(
             aspectRatio: 1.5,
             child: LineChartWidget(
@@ -175,48 +175,49 @@ class StatisticsPage extends ConsumerWidget {
       ),
     );
   }
-}
-// funktio kosteuskaavion luomiseen (samanlainen kuin lämpötilakaavio)
-Widget buildChartSectionHumidity({
-  required BuildContext context,
-  required String title,
-  required List<double> data,
-  required List<DateTime> timestamps,
-  required Color color,
-}) {
-  return Container(
-    padding: EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      color: Colors.lightBlueAccent.withOpacity(0.4),
-      borderRadius: BorderRadius.circular(8.0),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.5),
-          spreadRadius: 5,
-          blurRadius: 7,
-          offset: Offset(0, 3),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.lato(
-            textStyle: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+
+  // Funktio kosteuskaavion luomiseen
+  Widget buildChartSectionHumidity({
+    required BuildContext context,
+    required String title,
+    required List<double> data,
+    required List<DateTime> timestamps,
+    required Color color,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.lightBlueAccent.withOpacity(0.4),
+        borderRadius: BorderRadius.circular(8.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 5,
+            blurRadius: 7,
+            offset: Offset(0, 3),
           ),
-        ),
-        SizedBox(height: 10.0),
-        AspectRatio(
-          aspectRatio: 1.5,
-          child: LineChartWidget(
-            data: data,
-            timestamps: timestamps,
-            color: color,
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.lato(
+              textStyle: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+          SizedBox(height: 10.0),
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: LineChartWidget(
+              data: data,
+              timestamps: timestamps,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
