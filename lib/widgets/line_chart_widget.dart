@@ -8,6 +8,8 @@ class LineChartWidget extends StatelessWidget {
       timestamps; // luodaan lista datapisteitä vastaaville aikaleimoille
   final Color color;
 
+
+  // konstruktori LineChartWidget-luokalle
   const LineChartWidget({
     Key? key,
     required this.data,
@@ -17,17 +19,18 @@ class LineChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // tarkista, onko aikaleiman data tyhjä
+    // tarkista, onko aikaleiman dataa saatavilla
     if (data.isEmpty || timestamps.isEmpty) {
       return Center(
         child: Text(
-          'Tietoja ei saatavilla', // jos aikaleiman data on tyhjä, palauta tämä teksti
+          'Tietoja ei saatavilla', // jos aikaleiman dataa ei ole, palauta virheilmoitus
           style: TextStyle(color: Colors.red),
         ),
       );
     }
+    // jos aikaleiman dataa on saatavilla, näytä kaavio
     return Container(
-      color: Colors.lightGreenAccent.withOpacity(0.5),
+      color: Colors.lightGreenAccent.withOpacity(0.5), //taustaväri
       // välitetään data, aikaleimat ja väri yksityiselle _LineChartWidget
       child: _LineChartWidget(
         data: data,
@@ -43,6 +46,7 @@ class _LineChartWidget extends StatelessWidget {
   final List<DateTime> timestamps;
   final Color color;
 
+  // konstruktori yksityiselle luokalle
   const _LineChartWidget({
     Key? key,
     required this.data,
@@ -52,27 +56,30 @@ class _LineChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // luodaan kaavio
     return LineChart(
       // määritellään kaavion rakenne
       LineChartData(
-        lineTouchData: lineTouchData(),
-        gridData: gridData(),
-        titlesData: titlesData(),
-        borderData: borderData(),
-        backgroundColor: Colors.grey.withOpacity(0.7),
-        lineBarsData: lineBarsData(),
+        lineTouchData: lineTouchData(), //kosketustoiminnot
+        gridData: gridData(), //ruudukko
+        titlesData: titlesData(), //otsikot
+        borderData: borderData(),  //reunat
+        backgroundColor: Colors.white.withOpacity(0.7),  //taustaväri
+        lineBarsData: lineBarsData(), // data ja viivan ulkoasu
         // asetetaan x-akselin minimi- ja maksimiarvot
         minX: timestamps.first.millisecondsSinceEpoch.toDouble(),
         maxX: timestamps.last.millisecondsSinceEpoch.toDouble(),
-        // asetetaan y-akselin minimi- ja maksimiarvot
+        // asetetaan y-akselin laajennetut minimi- ja maksimiarvot
         minY:
-            data.reduce((value, element) => value < element ? value : element),
+            data.reduce((value, element) => value < element ? value : element) -
+                0.2,
         maxY:
-            data.reduce((value, element) => value > element ? value : element),
+            data.reduce((value, element) => value > element ? value : element) +
+                0.2,
       ),
     );
   }
-
+  // määritellään kosketustoiminnalllisuudet
   LineTouchData lineTouchData() => LineTouchData(
         // määritetään kaavion viivan arvopisteet ja selitystekstit
         handleBuiltInTouches: true,
@@ -80,12 +87,13 @@ class _LineChartWidget extends StatelessWidget {
             (LineChartBarData barData, List<int> spotIndexes) {
           return spotIndexes.map((index) {
             return TouchedSpotIndicatorData(
-              FlLine(color: Colors.blue, strokeWidth: 2),
-              FlDotData(show: true),
+              FlLine(color: Colors.blue, strokeWidth: 2), //viivan väri ja leveys
+              FlDotData(show: true),  //arvopiste viivalla näkyviin
             );
           }).toList();
         },
         touchTooltipData: LineTouchTooltipData(
+          // määritellään tooltipsit
           getTooltipItems: (List<LineBarSpot> touchedSpots) {
             return touchedSpots.map((touchedSpot) {
               final flSpot = touchedSpot;
@@ -97,7 +105,7 @@ class _LineChartWidget extends StatelessWidget {
           },
         ),
       );
-
+  // määritellään ruudukon ulkoasu
   FlGridData gridData() => FlGridData(
         //määritetään ruudukon ulkoasu
         show: true,
@@ -105,54 +113,66 @@ class _LineChartWidget extends StatelessWidget {
         horizontalInterval: 1,
         verticalInterval: 1,
         getDrawingHorizontalLine: (double _) => FlLine(
-          color: Colors.green.withOpacity(0.2),
+          color: Colors.green.withOpacity(0.2),  //vaakaviivojen väri
           strokeWidth: 1,
         ),
         getDrawingVerticalLine: (double _) => FlLine(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.green.withOpacity(0.2),  //pystyviivojen väri
           strokeWidth: 1,
         ),
       );
-
+  //määritellään otsikoiden ulkoasu ja sisältö
   FlTitlesData titlesData() => FlTitlesData(
         // asetetaaan kaavioiden otsikoiden näkyvyys
         show: true,
         rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          sideTitles: SideTitles(showTitles: false),  //piilota oikean laidan otsikko
         ),
         topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
+          sideTitles: SideTitles(showTitles: false),  //piilota ylälaidan otsikko
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
-            showTitles: true,
+            showTitles: true,  //alalaidan otsikko näkyviin (x-akseli)
+            reservedSize: 40,  //varaa tilaa otsikkolle
             getTitlesWidget: (value, meta) {
-              DateTime date =
+              //muunnetaan x-akselin arvo päivämääräksi ja muotoillaan se
+              final dateTime =
                   DateTime.fromMillisecondsSinceEpoch(value.toInt());
               return SideTitleWidget(
                 axisSide: meta.axisSide,
-                space: 4, // akselin ja otsikoiden riviväli
-                child: Transform.rotate(
-                  angle: -45 * 3.14159 / 180, // tekstin kääntö 45 astetta
-                  child: Text(
-                    DateFormat('dd/MM').format(date),
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                space: 6,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      top: 8.0), // akselin ja otsikoiden riviväli
+                  child: Transform.rotate(
+                    angle: -45 * 3.14159 / 180, // tekstin kääntö 45 astetta
+                    child: Text(
+                      DateFormat('HH:mm').format(dateTime), //näytetään aika muodossa tunnit:minuutit
+                      style: TextStyle(fontSize: 10, color: Colors.black),
+                    ),
                   ),
                 ),
               );
             },
-            /* interval: (timestamps.last.millisecondsSinceEpoch -
-                        timestamps.first.millisecondsSinceEpoch)
-                    .toDouble() /
-                5,*/
+            interval: 30000,
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
-            showTitles: true,
+            showTitles: true,  //vasemman reunan otsikko näkyviin (y-akseli)
+            reservedSize: 40,
             getTitlesWidget: (value, meta) {
-              return Text(value
-                  .toStringAsFixed(0)); // arvon muotoilu ja palautus tekstinä
+              return Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  value.toStringAsFixed(1),  //arvon pyöristys yhteen desimaaliin
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 10,
+                  ),
+                ),
+              );
             },
           ),
         ),
@@ -163,30 +183,35 @@ class _LineChartWidget extends StatelessWidget {
         show: true,
         border: Border(
           bottom: BorderSide(
-            color: Colors.lightGreenAccent.withOpacity(0.1),
+            color: Colors.lightGreenAccent.withOpacity(0.1), //alareunan väri ja näkyvyys
             width: 5,
           ),
+          //piilotetaan muut reunat
           left: const BorderSide(color: Colors.transparent),
           right: const BorderSide(color: Colors.transparent),
           top: const BorderSide(color: Colors.transparent),
         ),
       );
-
-  List<LineChartBarData> lineBarsData() => [
-        LineChartBarData(
-          spots: List.generate(
-            data.length,
-            (index) => FlSpot(
-              timestamps[index]
-                  .millisecondsSinceEpoch
-                  .toDouble(), // muunnetaan aikaleima double-arvoksi FlSpot:a varten
-              data[index],
-            ),
+  // muodostetaa varsinainen data ja viivan ulkoasu
+  List<LineChartBarData> lineBarsData() {
+    if (data.length != timestamps.length) { //jos datan ja aikaleiman pituus eivät täsmää, palauta tyhjä lista
+      return [];
+    }
+    return [
+      LineChartBarData(
+        spots: List.generate(
+          data.length,
+          (index) => FlSpot(
+            timestamps[index].millisecondsSinceEpoch.toDouble(),
+            // muunnetaan aikaleima double-arvoksi FlSpot:a varten
+            data[index],
           ),
-          isCurved: true,
-          color: color,
-          barWidth: 2,
-          belowBarData: BarAreaData(show: false),
         ),
-      ];
+        isCurved: true,
+        color: color,
+        barWidth: 2,
+        belowBarData: BarAreaData(show: false),
+      ),
+    ];
+  }
 }

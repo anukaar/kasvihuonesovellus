@@ -7,37 +7,43 @@ import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 class StatisticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // haetaan kasvihuoneen tiedot viewmodelista
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
+    // haetaan ensimmäinen yhdistetty laite, jos sellainen on olemassa
     final connectedDevice =
         greenhouseData.devices.isNotEmpty ? greenhouseData.devices.first : null;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: true,  //AppBar ulottuu taustakuvan päälle
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.7),
+        backgroundColor: Colors.white.withOpacity(0.7),  //läpikuultava tausta
         elevation: 0,
         centerTitle: true,
         title: Column(
           children: [
+            // otsikon tekstiominaisuudet
             Text(
               'Kasvihuone',
               style: GoogleFonts.pacifico(fontSize: 50),
             ),
+            // jos laite on yhdistetty, näytetään laitteen nimi ja tila
             if (connectedDevice != null) ...[
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // näytetään laitteen nimi tai "unknown device", jos nimeä ei ole
                   Text(
                     connectedDevice.name.isNotEmpty
                         ? connectedDevice.name
                         : 'Unknown device',
                     style: GoogleFonts.lato(
-                        fontSize: 20, fontWeight: FontWeight.bold),
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 8.0),
+                  // vihreä ympyrä osoittaa yhteyden tilan
                   Icon(
                     Icons.circle,
-                    color: connectedDevice != null ? Colors.green : Colors.red,
+                    color: Colors.green,
                     size: 16,
                   ),
                 ],
@@ -53,21 +59,24 @@ class StatisticsPage extends ConsumerWidget {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/images/background.jpg"),
-                fit: BoxFit.cover,
+                fit: BoxFit.cover,  //taustakuva täyttää koko tilan
               ),
             ),
           ),
+          // scrollaava sisältöalue
           Positioned.fill(
-            top: kToolbarHeight + 100,
+            top: kToolbarHeight + 100,  //jättää tilaa AppBarille ja ylämarginaalille
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    // jos dataa ei ole vielä ladattu, näytä latausindikaattori
                     if (greenhouseData.temperatures.isEmpty ||
                         greenhouseData.humidities.isEmpty)
                       CircularProgressIndicator()
                     else ...[
+                      // muuten näytä lämpötilakaavio
                       buildChartSectionTemperature(
                         context: context,
                         title: 'Lämpötila: ',
@@ -76,6 +85,7 @@ class StatisticsPage extends ConsumerWidget {
                         color: Colors.orange,
                       ),
                       SizedBox(height: 16.0),
+                      // näytä myös kosteuskaavio
                       buildChartSectionHumidity(
                         context: context,
                         title: 'Kosteus: ',
@@ -85,8 +95,10 @@ class StatisticsPage extends ConsumerWidget {
                       ),
                     ],
                     SizedBox(height: 10.0),
+                    // nappi, jolla voi etsiä tarvittaessa RuuviTagia
                     ElevatedButton(
                       onPressed: () {
+                        // käynnistetään Bluetooth-skannnus viewmodelista
                         ref
                             .read(greenhouseViewModelProvider.notifier)
                             .startScan();
@@ -106,7 +118,7 @@ class StatisticsPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 120.0),
+                    SizedBox(height: 120.0),  //lisätilaa alareunaan
                   ],
                 ),
               ),
@@ -116,7 +128,7 @@ class StatisticsPage extends ConsumerWidget {
       ),
     );
   }
-
+  // funktio lämpötilakaavion luomiseen
   Widget buildChartSectionTemperature({
     required BuildContext context,
     required String title,
@@ -125,11 +137,13 @@ class StatisticsPage extends ConsumerWidget {
     required Color color,
   }) {
     return Container(
+      // ulkoasun asettelut kaavion taustalla olevalle tilalle
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.lightGreen.withOpacity(0.6),
-        borderRadius: BorderRadius.circular(8.0),
+        color: Colors.lightGreen.withOpacity(0.6),  //taustan väri
+        borderRadius: BorderRadius.circular(8.0),  // pyöristetyt kulmat
         boxShadow: [
+          // varjoefekti
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 5,
@@ -139,7 +153,7 @@ class StatisticsPage extends ConsumerWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,  //tasaus vasemmalle
         children: [
           Text(
             title,
@@ -148,6 +162,7 @@ class StatisticsPage extends ConsumerWidget {
             ),
           ),
           SizedBox(height: 10.0),
+          // kaavion kuvasuhde
           AspectRatio(
             aspectRatio: 1.5,
             child: LineChartWidget(
@@ -161,7 +176,7 @@ class StatisticsPage extends ConsumerWidget {
     );
   }
 }
-
+// funktio kosteuskaavion luomiseen (samanlainen kuin lämpötilakaavio)
 Widget buildChartSectionHumidity({
   required BuildContext context,
   required String title,
