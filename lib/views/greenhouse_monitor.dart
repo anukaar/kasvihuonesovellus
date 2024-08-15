@@ -4,11 +4,45 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
 
 class GreenhouseMonitor extends ConsumerWidget {
-  get notifications => null;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
+
+    // Tarkista, onko dataa saatavilla
+    if (greenhouseData.temperatures.isEmpty || greenhouseData.humidities.isEmpty) {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.white.withOpacity(0.7),
+          elevation: 0,
+          centerTitle: true,
+          title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 50)),
+          toolbarHeight: 120,
+        ),
+        body: Stack(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/background.jpg"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                'Tietoja ei saatavilla',
+                style: TextStyle(color: Colors.red, fontSize: 24),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Muunna viimeisin lämpötila ja kosteus desimaaleiksi ja pyöristä yhteen desimaaliin
+    final latestTemperature = greenhouseData.temperatures.last.toStringAsFixed(1);
+    final latestHumidity = greenhouseData.humidities.last.toStringAsFixed(1);
 
     final List<String> notifications = [
       'Ilmoitus',
@@ -54,7 +88,7 @@ class GreenhouseMonitor extends ConsumerWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage("images/background.jpg"),
+                image: AssetImage("assets/images/background.jpg"),
                 fit: BoxFit.cover,
               ),
             ),
@@ -89,7 +123,7 @@ class GreenhouseMonitor extends ConsumerWidget {
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10, width: 10),
-                      Text('${greenhouseData.temperature}°C',
+                      Text('$latestTemperature°C',
                           style: TextStyle(fontSize: 24)),
                     ],
                   ),
@@ -118,7 +152,7 @@ class GreenhouseMonitor extends ConsumerWidget {
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10, width: 10),
-                      Text('${greenhouseData.humidity}%',
+                      Text('$latestHumidity%',
                           style: TextStyle(fontSize: 24)),
                     ],
                   ),
@@ -133,10 +167,7 @@ class GreenhouseMonitor extends ConsumerWidget {
               onPressed: () {
                 ref
                     .read(greenhouseViewModelProvider.notifier)
-                    .updateTemperature(25.0);
-                ref
-                    .read(greenhouseViewModelProvider.notifier)
-                    .updateHumidity(60.0);
+                    .updateData(25, 60, DateTime.now());
               },
               child: const Icon(Icons.update),
             ),

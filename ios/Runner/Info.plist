@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Kasvihuonesovellus</string>
+	<string>Kasvihuone</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,5 +45,13 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Need Bluetooth access to connect to the sensor</string>
+    <key>NSBluetoothPeripheralUsageDescription</key>
+    <string>Need Bluetooth access to connect to the sensor</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Need location access to scan for Bluetooth devices</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Your app needs location access to scan for Bluetooth devices.</string>
 </dict>
 </plist>

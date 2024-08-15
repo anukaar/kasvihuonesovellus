@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "193096512309",
+    "project_id": "kasvihuonesovellus",
+    "storage_bucket": "kasvihuonesovellus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193096512309:android:1d461bb96d2d496276927c",
+        "android_client_info": {
+          "package_name": "com.example.kasvihuonesovellus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhsFd95LnlBVC4XzbE1oVXtYYFk5WA9rI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
