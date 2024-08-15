@@ -7,17 +7,28 @@ class GreenhouseMonitor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
+    // Haetaan ensimmäinen yhdistetty laite, jos sellainen on olemassa
+    final connectedDevice =
+        greenhouseData.devices.isNotEmpty ? greenhouseData.devices.first : null;
 
     // Tarkista, onko dataa saatavilla
-    if (greenhouseData.temperatures.isEmpty || greenhouseData.humidities.isEmpty) {
+    if (greenhouseData.temperatures.isEmpty ||
+        greenhouseData.humidities.isEmpty) {
       return Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.white.withOpacity(0.7),
           elevation: 0,
-          centerTitle: true,
-          title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 50)),
           toolbarHeight: 120,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                  child: Text("Kasvihuone",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.pacifico(fontSize: 40))),
+            ],
+          ),
         ),
         body: Stack(
           children: [
@@ -41,7 +52,8 @@ class GreenhouseMonitor extends ConsumerWidget {
     }
 
     // Muunna viimeisin lämpötila ja kosteus desimaaleiksi ja pyöristä yhteen desimaaliin
-    final latestTemperature = greenhouseData.temperatures.last.toStringAsFixed(1);
+    final latestTemperature =
+        greenhouseData.temperatures.last.toStringAsFixed(1);
     final latestHumidity = greenhouseData.humidities.last.toStringAsFixed(1);
 
     final List<String> notifications = [
@@ -56,11 +68,11 @@ class GreenhouseMonitor extends ConsumerWidget {
         backgroundColor: Colors.white.withOpacity(0.7),
         elevation: 0,
         centerTitle: true,
-        title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 50)),
+        title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 40)),
         toolbarHeight: 120,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 50.0),
+            padding: const EdgeInsets.only(right: 15.0),
             child: Transform.scale(
               scale: 1.5,
               child: PopupMenuButton<String>(
@@ -97,6 +109,32 @@ class GreenhouseMonitor extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Näytetään laitteen nimi ja tila
+                if (connectedDevice != null) ...[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Näytetään laitteen nimi tai "Unknown device", jos nimeä ei ole
+                      Text(
+                        connectedDevice.name.isNotEmpty
+                            ? connectedDevice.name
+                            : 'Unknown device',
+                        style: GoogleFonts.lato(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 8.0),
+                      // Vihreä ympyrä osoittaa yhteyden tilan
+                      Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                      height:
+                          20), // Lisää tilaa laitteen nimen ja mittaustietojen väliin
+                ],
                 Container(
                   padding: EdgeInsets.all(50.0),
                   margin: EdgeInsets.only(bottom: 16.0),
@@ -152,24 +190,37 @@ class GreenhouseMonitor extends ConsumerWidget {
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 10, width: 10),
-                      Text('$latestHumidity%',
-                          style: TextStyle(fontSize: 24)),
+                      Text('$latestHumidity%', style: TextStyle(fontSize: 24)),
                     ],
                   ),
                 ),
+                SizedBox(height: 10),
+                Container(
+                  // Nappi, jolla voi etsiä tarvittaessa RuuviTagia
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Käynnistetään Bluetooth-skannaus viewmodelista
+                      ref
+                          .read(greenhouseViewModelProvider.notifier)
+                          .startScan();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.lightGreen,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                    ),
+                    child: Text(
+                      'Etsi RuuviTag',
+                      style: GoogleFonts.lato(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
               ],
-            ),
-          ),
-          Positioned(
-            right: 16,
-            bottom: 145,
-            child: FloatingActionButton(
-              onPressed: () {
-                ref
-                    .read(greenhouseViewModelProvider.notifier)
-                    .updateData(25, 60, DateTime.now());
-              },
-              child: const Icon(Icons.update),
             ),
           ),
         ],
