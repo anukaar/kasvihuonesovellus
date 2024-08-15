@@ -9,49 +9,44 @@ class StatisticsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Haetaan kasvihuoneen tiedot viewmodelista
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
-    // Haetaan ensimmäinen yhdistetty laite, jos sellainen on olemassa
-    final connectedDevice =
-        greenhouseData.devices.isNotEmpty ? greenhouseData.devices.first : null;
+    final List<String> notifications = [
+      'Ilmoitus',
+      'Ilmoitus',
+      'Ilmoitus',
+    ];
 
     return Scaffold(
       extendBodyBehindAppBar: true, // AppBar ulottuu taustakuvan päälle
       appBar: AppBar(
-        backgroundColor: Colors.white.withOpacity(0.7), // läpikuultava tausta
+        backgroundColor: Colors.white.withOpacity(0.7),
         elevation: 0,
         centerTitle: true,
-        title: Column(
-          children: [
-            // Otsikon tekstiominaisuudet
-            Text(
-              'Kasvihuone',
-              style: GoogleFonts.pacifico(fontSize: 50),
-            ),
-            // Jos laite on yhdistetty, näytetään laitteen nimi ja tila
-            if (connectedDevice != null) ...[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Näytetään laitteen nimi tai "Unknown device", jos nimeä ei ole
-                  Text(
-                    connectedDevice.name.isNotEmpty
-                        ? connectedDevice.name
-                        : 'Unknown device',
-                    style: GoogleFonts.lato(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 8.0),
-                  // Vihreä ympyrä osoittaa yhteyden tilan
-                  Icon(
-                    Icons.circle,
-                    color: Colors.green,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
+        title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 40)),
         toolbarHeight: 120,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 15.0),
+            child: Transform.scale(
+              scale: 1.5,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.notifications),
+                onSelected: (String result) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(result)),
+                  );
+                },
+                itemBuilder: (BuildContext context) {
+                  return notifications.map((String notification) {
+                    return PopupMenuItem<String>(
+                      value: notification,
+                      child: Text(notification),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -64,7 +59,8 @@ class StatisticsPage extends ConsumerWidget {
             ),
           ),
           Positioned.fill(
-            top: kToolbarHeight + 100, // Jättää tilaa AppBarille ja ylämarginaalille
+            top: kToolbarHeight +
+                100, // Jättää tilaa AppBarille ja ylämarginaalille
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -79,8 +75,8 @@ class StatisticsPage extends ConsumerWidget {
                       buildChartSectionTemperature(
                         context: context,
                         title: 'Lämpötila: ',
-                        data: greenhouseData.temperatures,
-                        timestamps: greenhouseData.timestamps,
+                        data: greenhouseData.avgTemperatures,
+                        timestamps: greenhouseData.avgTimestamps,
                         color: Colors.orange,
                       ),
                       SizedBox(height: 16.0),
@@ -88,36 +84,13 @@ class StatisticsPage extends ConsumerWidget {
                       buildChartSectionHumidity(
                         context: context,
                         title: 'Kosteus: ',
-                        data: greenhouseData.humidities,
-                        timestamps: greenhouseData.timestamps,
+                        data: greenhouseData.avgHumidities,
+                        timestamps: greenhouseData.avgTimestamps,
                         color: Colors.blue,
                       ),
                       SizedBox(height: 100.0), // Lisätilaa alareunaan
                     ],
                     SizedBox(height: 10.0),
-                    // Nappi, jolla voi etsiä tarvittaessa RuuviTagia
-                    ElevatedButton(
-                      onPressed: () {
-                        // Käynnistetään Bluetooth-skannaus viewmodelista
-                        ref
-                            .read(greenhouseViewModelProvider.notifier)
-                            .startScan();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.lightGreen,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                      child: Text(
-                        'Etsi RuuviTag',
-                        style: GoogleFonts.lato(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

@@ -136,4 +136,99 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
       List<DateTime> updatedTimestamps = [...state.timestamps, DateTime.now()];
 
       List<double> updatedAvgTemperatures = state.avgTemperatures;
-      List<double> updatedAvgHumidities = state.av
+      List<double> updatedAvgHumidities = state.avgHumidities;
+      List<DateTime> updatedAvgTimestamps = state.avgTimestamps;
+
+      if (state.avgTemperatures.isEmpty) {
+        updatedAvgTemperatures = [temperature];
+        updatedAvgHumidities = [humidity];
+        updatedAvgTimestamps = [DateTime.now()];
+      }
+
+      print("Updated timestamps: $updatedTimestamps");
+
+      state = GreenhouseData(
+        temperatures: updatedTemperatures,
+        humidities: updatedHumidities,
+        timestamps: updatedTimestamps,
+        devices: state.devices,
+        avgTemperatures: updatedAvgTemperatures,
+        avgHumidities: updatedAvgHumidities,
+        avgTimestamps: updatedAvgTimestamps,
+      );
+    }
+  }
+
+  // laskee liikkuvan keskiarvon
+  List<double> calculateMovingAverage(List<double> values, int windowSize) {
+    List<double> averages = [];
+    for (int i = 0; i < values.length; i++) {
+      int start = i - windowSize + 1;
+      int end = i + 1;
+      if (start >= 0) {
+        double sum = values.sublist(start, end).reduce((a, b) => a + b);
+        double average = sum / windowSize;
+        averages.add(average);
+      } else {
+        averages.add(values[i]);
+      }
+    }
+    return averages;
+  }
+
+  // hakee ja keskiarvoistaa datan
+  Future<void> fetchAndAverageData() async {
+    final DateTime now = DateTime.now();
+    final DateTime MinutesAgo = now.subtract(Duration(minutes: 10));
+
+    QuerySnapshot snapshot = await _firestore
+        .collection('greenhouse_data')
+        .where('timestamp', isGreaterThanOrEqualTo: MinutesAgo)
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    List<double> temperatures = [];
+    List<double> humidities = [];
+    List<DateTime> avgTimestamps = [];
+
+    snapshot.docs.forEach((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      temperatures.add(data['temperature']);
+      humidities.add(data['humidity']);
+      avgTimestamps.add((data['timestamp'] as Timestamp).toDate());
+    });
+
+    List<double> avgTemperatures = calculateMovingAverage(temperatures, 10);
+    List<double> avgHumidities = calculateMovingAverage(humidities, 10);
+
+    if (temperatures.isNotEmpty && humidities.isNotEmpty) {
+      state = GreenhouseData(
+        temperatures: state.temperatures,
+        humidities: state.humidities,
+        timestamps: state.timestamps,
+        devices: state.devices,
+        avgTemperatures: avgTemperatures,
+        avgHumidities: avgHumidities,
+        avgTimestamps: avgTimestamps,
+      );
+    } else {
+      print('No data available for averaging');
+    }
+  }
+
+  // aloittaa säännöllisen datan keskiarvon laskemisen
+  void startAveraging() {
+    fetchAndAverageData();
+    _averageTimer = Timer.periodic(Duration(minutes: 5), (timer) {
+      fetchAndAverageData();
+    });
+  }
+
+  // pysäyttää ajastimet näkymän hävitessä
+  @override
+  void dispose() {
+    _scanTimer?.cancel();
+    _averageTimer?.cancel();
+    super.dispose();
+  }
+}
