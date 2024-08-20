@@ -5,83 +5,64 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kasvihuonesovellus/models/greenhouse_data.dart';
 
-// luodaan Riverpod-provider kasvihuoneen viewmodelille
+// Riverpod-provider kasvihuoneen viewmodelille
 final greenhouseViewModelProvider =
     StateNotifierProvider<GreenhouseViewModel, GreenhouseData>(
   (ref) => GreenhouseViewModel(),
 );
 
-// luokka kasvihuoneen datan säilömiseen
-class GreenhouseData {
-  final List<double> temperatures;
-  final List<double> humidities;
-  final List<DateTime> timestamps;
-  final List<DiscoveredDevice> devices;
-  final List<double> avgTemperatures;
-  final List<double> avgHumidities;
-  final List<DateTime> avgTimestamps;
-
-  GreenhouseData({
-    this.temperatures = const [],
-    this.humidities = const [],
-    this.timestamps = const [],
-    this.devices = const [],
-    this.avgTemperatures = const [],
-    this.avgHumidities = const [],
-    this.avgTimestamps = const [],
-  });
-}
-
-// viewmodel kasvihuoneen datan hallintaan
+// luokka kasvihuoneen datan hallintaan
 class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
+  GreenhouseData _data = GreenhouseData.initial();
   final FlutterReactiveBle _ble;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Timer? _scanTimer;
   Timer? _averageTimer;
 
-  // konstruktori, joka käynnistää säännöllisen skannauksen
+  GreenhouseData get data => _data;
+
+  // Konstruktori, joka käynnistää säännöllisen skannauksen
   GreenhouseViewModel()
       : _ble = FlutterReactiveBle(),
-        super(GreenhouseData()) {
+        super(GreenhouseData.initial()) {
     startPeriodicScan();
     startAveraging();
   }
 
-  // aloittaa säännöllisen Bluetooth-skannauksen kahden minuutin välein
+  // Aloittaa säännöllisen Bluetooth-skannauksen kahden minuutin välein
   void startPeriodicScan() {
     startScan();
-    _scanTimer = Timer.periodic(Duration(minutes: 2), (timer) {
+    _scanTimer = Timer.periodic(Duration(minutes: 5), (timer) {
       startScan();
     });
   }
 
-  // aloittaa Bluetooth-skannauksen
+  // Aloittaa Bluetooth-skannauksen
   void startScan() {
     print("Starting Bluetooth scan...");
+    // Kuuntelee löydettyjä laitteita;
     final subscription = _ble.scanForDevices(
       withServices: [],
       scanMode: ScanMode.balanced,
     ).listen((device) {
       print("Found device: ${device.name}, id: ${device.id}");
       try {
-        final manufacturerData = device.manufacturerData;
+        final manufacturerData =
+            device.manufacturerData; // Haetaan laitteen valmistajan data
         print("Manufacturer data (raw): $manufacturerData");
 
         if (_isValidManufacturerData(manufacturerData)) {
           print("Valid manufacturer data found for device: ${device.name}");
-          _processManufacturerData(manufacturerData);
-          state = GreenhouseData(
-            temperatures: state.temperatures,
-            humidities: state.humidities,
-            timestamps: state.timestamps,
+          _processManufacturerData(
+              manufacturerData); // Tarkistetaan, onko valmistajan data validi
+          // Päivitetään tila uusilla tiedoilla
+          state = state.copyWith(
             devices: [
               ...state.devices.where((element) => element.id != device.id),
-              device,
+              device, // Lisätään uusi laite
             ],
-            avgTemperatures: state.avgTemperatures,
-            avgHumidities: state.avgHumidities,
-            avgTimestamps: state.avgTimestamps,
           );
         } else {
           print("Invalid manufacturer data for device: ${device.name}");
@@ -93,18 +74,21 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
       print('Error during scan: $error');
     });
 
+    // Pysäyttää skannauksen 5 sekunnin kuluttua
     Future.delayed(Duration(seconds: 5), () {
       subscription.cancel();
       print("Scan stopped.");
     });
   }
 
-  // tarkistaa, onko valmistajan data validi (RuuviTag)
+  // Tarkistaa, onko valmistajan data validi (RuuviTag)
   bool _isValidManufacturerData(Uint8List manufacturerData) {
     print("Manufacturer data length: ${manufacturerData.length}");
     if (manufacturerData.length >= 2) {
+      // Lasketaan valmistajan ID
       final manufacturerId = (manufacturerData[1] << 8) | manufacturerData[0];
       print("Manufacturer ID: $manufacturerId (expected: 0x0499, ${0x0499})");
+      // Tarkistetaan, onko ID oikea (RuuviTag)
       if (manufacturerId == 0x0499) {
         return true;
       }
@@ -112,9 +96,10 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
     return false;
   }
 
-  // käsittelee valmistajan datan ja tallentaa sen Firestoreen
+  // Käsittelee valmistajan datan ja tallentaa sen Firestoreen
   void _processManufacturerData(Uint8List manufacturerData) async {
     if (manufacturerData.length >= 24) {
+      // Lasketaan lämpötila ja kosteus raakadatasta
       int tempRaw = (manufacturerData[3] << 8) | manufacturerData[2];
       if (tempRaw >= 32768) tempRaw -= 65536;
       double temperature = tempRaw * 0.005;
@@ -122,8 +107,10 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
       int humidityRaw = (manufacturerData[5] << 8) | manufacturerData[4];
       double humidity = humidityRaw * 0.0025;
 
+      // Haetaan käyttäjän ID tai käytetään "Unknown" jos ei kirjautunut
       String uid = FirebaseAuth.instance.currentUser?.uid ?? 'Unknown';
 
+      // Tallennetaan tiedot Firestoreen
       await _firestore.collection('greenhouse_data').add({
         'uid': uid,
         'temperature': temperature,
@@ -147,11 +134,10 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
 
       print("Updated timestamps: $updatedTimestamps");
 
-      state = GreenhouseData(
+      state = state.copyWith(
         temperatures: updatedTemperatures,
         humidities: updatedHumidities,
         timestamps: updatedTimestamps,
-        devices: state.devices,
         avgTemperatures: updatedAvgTemperatures,
         avgHumidities: updatedAvgHumidities,
         avgTimestamps: updatedAvgTimestamps,
@@ -159,7 +145,7 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
     }
   }
 
-  // laskee liikkuvan keskiarvon
+  // Laskee liikkuvan keskiarvon
   List<double> calculateMovingAverage(List<double> values, int windowSize) {
     List<double> averages = [];
     for (int i = 0; i < values.length; i++) {
@@ -176,14 +162,14 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
     return averages;
   }
 
-  // hakee ja keskiarvoistaa datan
+  // Hakee ja keskiarvoistaa datan Firestoresta
   Future<void> fetchAndAverageData() async {
     final DateTime now = DateTime.now();
-    final DateTime MinutesAgo = now.subtract(Duration(minutes: 10));
+    final DateTime minutesAgo = now.subtract(Duration(minutes: 10));
 
     QuerySnapshot snapshot = await _firestore
         .collection('greenhouse_data')
-        .where('timestamp', isGreaterThanOrEqualTo: MinutesAgo)
+        .where('timestamp', isGreaterThanOrEqualTo: minutesAgo)
         .orderBy('timestamp', descending: true)
         .get();
 
@@ -202,11 +188,7 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
     List<double> avgHumidities = calculateMovingAverage(humidities, 10);
 
     if (temperatures.isNotEmpty && humidities.isNotEmpty) {
-      state = GreenhouseData(
-        temperatures: state.temperatures,
-        humidities: state.humidities,
-        timestamps: state.timestamps,
-        devices: state.devices,
+      state = state.copyWith(
         avgTemperatures: avgTemperatures,
         avgHumidities: avgHumidities,
         avgTimestamps: avgTimestamps,
@@ -216,10 +198,10 @@ class GreenhouseViewModel extends StateNotifier<GreenhouseData> {
     }
   }
 
-  // aloittaa säännöllisen datan keskiarvon laskemisen
+  // Aloittaa säännöllisen datan keskiarvon laskemisen
   void startAveraging() {
     fetchAndAverageData();
-    _averageTimer = Timer.periodic(Duration(minutes: 5), (timer) {
+    _averageTimer = Timer.periodic(Duration(minutes: 10), (timer) {
       fetchAndAverageData();
     });
   }

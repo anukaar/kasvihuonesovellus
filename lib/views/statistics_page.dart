@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
+import 'package:kasvihuonesovellus/viewmodels/greenhouse_viewmodel.dart';
 import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 
 class StatisticsPage extends ConsumerWidget {

@@ -8,7 +8,6 @@ class LineChartWidget extends StatelessWidget {
       timestamps; // luodaan lista datapisteitä vastaaville aikaleimoille
   final Color color;
 
-
   // konstruktori LineChartWidget-luokalle
   const LineChartWidget({
     Key? key,
@@ -63,8 +62,8 @@ class _LineChartWidget extends StatelessWidget {
         lineTouchData: lineTouchData(), //kosketustoiminnot
         gridData: gridData(), //ruudukko
         titlesData: titlesData(), //otsikot
-        borderData: borderData(),  //reunat
-        backgroundColor: Colors.white.withOpacity(0.7),  //taustaväri
+        borderData: borderData(), //reunat
+        backgroundColor: Colors.white.withOpacity(0.7), //taustaväri
         lineBarsData: lineBarsData(), // data ja viivan ulkoasu
         // asetetaan x-akselin minimi- ja maksimiarvot
         minX: timestamps.first.millisecondsSinceEpoch.toDouble(),
@@ -79,6 +78,7 @@ class _LineChartWidget extends StatelessWidget {
       ),
     );
   }
+
   // määritellään kosketustoiminnalllisuudet
   LineTouchData lineTouchData() => LineTouchData(
         // määritetään kaavion viivan arvopisteet ja selitystekstit
@@ -87,8 +87,9 @@ class _LineChartWidget extends StatelessWidget {
             (LineChartBarData barData, List<int> spotIndexes) {
           return spotIndexes.map((index) {
             return TouchedSpotIndicatorData(
-              FlLine(color: Colors.blue, strokeWidth: 2), //viivan väri ja leveys
-              FlDotData(show: true),  //arvopiste viivalla näkyviin
+              FlLine(
+                  color: Colors.blue, strokeWidth: 2), //viivan väri ja leveys
+              FlDotData(show: true), //arvopiste viivalla näkyviin
             );
           }).toList();
         },
@@ -113,11 +114,11 @@ class _LineChartWidget extends StatelessWidget {
         horizontalInterval: 1,
         verticalInterval: 1,
         getDrawingHorizontalLine: (double _) => FlLine(
-          color: Colors.green.withOpacity(0.2),  //vaakaviivojen väri
+          color: Colors.green.withOpacity(0.2), //vaakaviivojen väri
           strokeWidth: 1,
         ),
         getDrawingVerticalLine: (double _) => FlLine(
-          color: Colors.green.withOpacity(0.2),  //pystyviivojen väri
+          color: Colors.green.withOpacity(0.2), //pystyviivojen väri
           strokeWidth: 1,
         ),
       );
@@ -126,15 +127,16 @@ class _LineChartWidget extends StatelessWidget {
         // asetetaaan kaavioiden otsikoiden näkyvyys
         show: true,
         rightTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),  //piilota oikean laidan otsikko
+          sideTitles:
+              SideTitles(showTitles: false), //piilota oikean laidan otsikko
         ),
         topTitles: const AxisTitles(
-          sideTitles: SideTitles(showTitles: false),  //piilota ylälaidan otsikko
+          sideTitles: SideTitles(showTitles: false), //piilota ylälaidan otsikko
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
-            showTitles: true,  //alalaidan otsikko näkyviin (x-akseli)
-            reservedSize: 40,  //varaa tilaa otsikkolle
+            showTitles: true, //alalaidan otsikko näkyviin (x-akseli)
+            reservedSize: 40,
             getTitlesWidget: (value, meta) {
               //muunnetaan x-akselin arvo päivämääräksi ja muotoillaan se
               final dateTime =
@@ -148,25 +150,26 @@ class _LineChartWidget extends StatelessWidget {
                   child: Transform.rotate(
                     angle: -45 * 3.14159 / 180, // tekstin kääntö 45 astetta
                     child: Text(
-                      DateFormat('HH:mm').format(dateTime), //näytetään aika muodossa tunnit:minuutit
+                      DateFormat('HH:mm').format(
+                          dateTime), //näytetään aika muodossa tunnit:minuutit
                       style: TextStyle(fontSize: 10, color: Colors.black),
                     ),
                   ),
                 ),
               );
             },
-            interval: 30000,
+            interval: 60000,
           ),
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
-            showTitles: true,  //vasemman reunan otsikko näkyviin (y-akseli)
+            showTitles: true, //vasemman reunan otsikko näkyviin (y-akseli)
             reservedSize: 40,
             getTitlesWidget: (value, meta) {
               return Padding(
                 padding: const EdgeInsets.only(left: 8.0),
                 child: Text(
-                  value.toStringAsFixed(1),  //arvon pyöristys yhteen desimaaliin
+                  value.toStringAsFixed(1), //arvon pyöristys yhteen desimaaliin
                   style: const TextStyle(
                     color: Colors.black,
                     fontSize: 10,
@@ -183,7 +186,8 @@ class _LineChartWidget extends StatelessWidget {
         show: true,
         border: Border(
           bottom: BorderSide(
-            color: Colors.lightGreenAccent.withOpacity(0.1), //alareunan väri ja näkyvyys
+            color: Colors.lightGreenAccent
+                .withOpacity(0.1), //alareunan väri ja näkyvyys
             width: 5,
           ),
           //piilotetaan muut reunat
@@ -194,7 +198,8 @@ class _LineChartWidget extends StatelessWidget {
       );
   // muodostetaa varsinainen data ja viivan ulkoasu
   List<LineChartBarData> lineBarsData() {
-    if (data.length != timestamps.length) { //jos datan ja aikaleiman pituus eivät täsmää, palauta tyhjä lista
+    if (data.length != timestamps.length) {
+      //jos datan ja aikaleiman pituus eivät täsmää, palauta tyhjä lista
       return [];
     }
     return [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:kasvihuonesovellus/greenhouse_viewmodel.dart';
+import 'package:kasvihuonesovellus/viewmodels/greenhouse_viewmodel.dart';
 
 class GreenhouseMonitor extends ConsumerWidget {
   @override
@@ -68,7 +68,38 @@ class GreenhouseMonitor extends ConsumerWidget {
         backgroundColor: Colors.white.withOpacity(0.7),
         elevation: 0,
         centerTitle: true,
-        title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 40)),
+        title: Column(
+          children: [
+            Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 40)),
+            SizedBox(
+              height: 5,
+            ),
+            // Näytetään laitteen nimi ja tila
+            if (connectedDevice != null) ...[
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Näytetään laitteen nimi tai "Unknown device", jos nimeä ei ole
+                  Text(
+                    connectedDevice.name.isNotEmpty
+                        ? connectedDevice.name
+                        : 'Unknown device',
+                    style: GoogleFonts.lato(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 8.0),
+                  // Vihreä ympyrä osoittaa yhteyden tilan
+                  Icon(
+                    Icons.circle,
+                    color: Colors.green,
+                    size: 16,
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+            ],
+          ],
+        ),
         toolbarHeight: 120,
         actions: [
           Padding(
@@ -109,32 +140,6 @@ class GreenhouseMonitor extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Näytetään laitteen nimi ja tila
-                if (connectedDevice != null) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Näytetään laitteen nimi tai "Unknown device", jos nimeä ei ole
-                      Text(
-                        connectedDevice.name.isNotEmpty
-                            ? connectedDevice.name
-                            : 'Unknown device',
-                        style: GoogleFonts.lato(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(width: 8.0),
-                      // Vihreä ympyrä osoittaa yhteyden tilan
-                      Icon(
-                        Icons.circle,
-                        color: Colors.green,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                      height:
-                          20), // Lisää tilaa laitteen nimen ja mittaustietojen väliin
-                ],
                 Container(
                   padding: EdgeInsets.all(50.0),
                   margin: EdgeInsets.only(bottom: 16.0),
@@ -194,33 +199,34 @@ class GreenhouseMonitor extends ConsumerWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
-                Container(
-                  // Nappi, jolla voi etsiä tarvittaessa RuuviTagia
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Käynnistetään Bluetooth-skannaus viewmodelista
-                      ref
-                          .read(greenhouseViewModelProvider.notifier)
-                          .startScan();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.lightGreen,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                    ),
-                    child: Text(
-                      'Etsi RuuviTag',
-                      style: GoogleFonts.lato(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 120, // Sijoitetaan painike alareunaan
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Käynnistetään Bluetooth-skannaus viewmodelista
+                  ref.read(greenhouseViewModelProvider.notifier).startScan();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.lightGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
                   ),
                 ),
-              ],
+                child: Text(
+                  'Etsi RuuviTag',
+                  style: GoogleFonts.lato(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
