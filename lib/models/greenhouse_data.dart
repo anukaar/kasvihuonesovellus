@@ -1,46 +1,57 @@
-class GreenhouseData {
-  final double temperature; // current temperature value
-  final double humidity; // current humidity value
-  final List<double> temperatures; // list of past temperature values
-  final List<double> humidities; // list of past humidity values
-  final List<DateTime>
-      timestamps; // list of timestamps corresponding to the temperature and humidity values
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
+// luokka kasvihuoneen datan säilömiseen
+class GreenhouseData {
+  final List<double> temperatures;
+  final List<double> humidities;
+  final List<DateTime> timestamps;
+  final List<DiscoveredDevice> devices;
+  final List<double> avgTemperatures;
+  final List<double> avgHumidities;
+  final List<DateTime> avgTimestamps;
+
+  // Päätason konstruktori
   GreenhouseData({
-    required this.temperature,
-    required this.humidity,
-    required this.temperatures,
-    required this.humidities,
-    required this.timestamps,
+    this.temperatures = const [],
+    this.humidities = const [],
+    this.timestamps = const [],
+    this.devices = const [],
+    this.avgTemperatures = const [],
+    this.avgHumidities = const [],
+    this.avgTimestamps = const [],
   });
 
+  // Tehdasfunktio alkuarvojen asettamiseen
   factory GreenhouseData.initial() {
     return GreenhouseData(
-      temperature: 0.0, // ínitial temperature value set to 0.0
-      humidity: 0.0, // initial humidity value set to 0.0
-      // initial empty lists for the values (temperatures, humidities, timestamps)
       temperatures: [],
       humidities: [],
       timestamps: [],
+      devices: [],
+      avgTemperatures: [],
+      avgHumidities: [],
+      avgTimestamps: [],
     );
   }
 
-  // method to create a copy of the current GreenhouseData object with optional new values
+  // copyWith-metodi, jonka avulla voidaan luoda uusi GreenhouseData-olio, johon on päivitetty vain tietyt kentät
   GreenhouseData copyWith({
-    // optional new values and lists
-    double? temperature,
-    double? humidity,
     List<double>? temperatures,
     List<double>? humidities,
     List<DateTime>? timestamps,
+    List<DiscoveredDevice>? devices,
+    List<double>? avgTemperatures,
+    List<double>? avgHumidities,
+    List<DateTime>? avgTimestamps,
   }) {
     return GreenhouseData(
-      temperature: temperature ??
-          this.temperature, // use the new temperature value if provides, otherwise use the current temperature
-      humidity: humidity ?? this.humidity,
       temperatures: temperatures ?? this.temperatures,
       humidities: humidities ?? this.humidities,
       timestamps: timestamps ?? this.timestamps,
+      devices: devices ?? this.devices,
+      avgTemperatures: avgTemperatures ?? this.avgTemperatures,
+      avgHumidities: avgHumidities ?? this.avgHumidities,
+      avgTimestamps: avgTimestamps ?? this.avgTimestamps,
     );
   }
 }
