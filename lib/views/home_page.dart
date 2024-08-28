@@ -3,6 +3,7 @@ import 'package:kasvihuonesovellus/views/greenhouse_monitor.dart';
 import 'package:kasvihuonesovellus/views/settings_page.dart';
 import 'package:kasvihuonesovellus/views/statistics_page.dart';
 
+// Päänavigointisivu, jossa käyttäjä voi siirtyä eri näkymien (Monitori, Tilastot, Asetukset) välillä.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -11,7 +12,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // _currentIndex pitää kirjaa siitä, mikä näkymä on parhaillaan aktiivinen (valittuna).
   int _currentIndex = 0;
+  // Lista sivuista, joita käyttäjä voi selata BottomNavigationBarin kautta.
   final List<Widget> _pages = [
     GreenhouseMonitor(),
     StatisticsPage(),
@@ -25,6 +28,7 @@ class _HomePageState extends State<HomePage> {
       body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         height: 120,
+        // Alavalikon määrittelyt
         child: BottomNavigationBar(
           backgroundColor: Colors.white.withOpacity(0.5),
           elevation: 0,

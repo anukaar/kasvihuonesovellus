@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kasvihuonesovellus/viewmodels/greenhouse_viewmodel.dart';
+import 'package:kasvihuonesovellus/viewmodels/notification_provider.dart';
 import 'package:kasvihuonesovellus/widgets/line_chart_widget.dart';
 
 class StatisticsPage extends ConsumerWidget {
@@ -9,11 +10,9 @@ class StatisticsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Haetaan kasvihuoneen tiedot viewmodelista
     final greenhouseData = ref.watch(greenhouseViewModelProvider);
-    final List<String> notifications = [
-      'Ilmoitus',
-      'Ilmoitus',
-      'Ilmoitus',
-    ];
+
+    // Haetaan ilmoitukset NotificationProviderista
+    final notifications = ref.watch(notificationProvider);
 
     return Scaffold(
       extendBodyBehindAppBar: true, // AppBar ulottuu taustakuvan päälle
@@ -21,27 +20,43 @@ class StatisticsPage extends ConsumerWidget {
         backgroundColor: Colors.white.withOpacity(0.7),
         elevation: 0,
         centerTitle: true,
-        title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 40)),
+        title: Text("Kasvihuone", style: GoogleFonts.pacifico(fontSize: 41)),
         toolbarHeight: 120,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 15.0),
-            child: Transform.scale(
-              scale: 1.5,
+            padding: const EdgeInsets.only(right: 15.0, top: 10.0),
+            // Ilmoituskuvakkeen määrittely
+            child: Badge(
+              isLabelVisible:
+                  notifications.isNotEmpty, // Näytä merkki, jos ilmoituksia on
+              label: Text(
+                notifications.length.toString(), // Näytetään ilmoitusten määrä
+                style: const TextStyle(color: Colors.white),
+              ),
               child: PopupMenuButton<String>(
                 icon: const Icon(Icons.notifications),
+                iconSize: 30.0,
                 onSelected: (String result) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(result)),
                   );
                 },
                 itemBuilder: (BuildContext context) {
-                  return notifications.map((String notification) {
-                    return PopupMenuItem<String>(
-                      value: notification,
-                      child: Text(notification),
-                    );
-                  }).toList();
+                  if (notifications.isEmpty) {
+                    return [
+                      const PopupMenuItem<String>(
+                        value: 'Ei uusia ilmoituksia',
+                        child: Text('Ei uusia ilmoituksia'),
+                      )
+                    ];
+                  } else {
+                    return notifications.map((String notification) {
+                      return PopupMenuItem<String>(
+                        value: notification,
+                        child: Text(notification),
+                      );
+                    }).toList();
+                  }
                 },
               ),
             ),
@@ -75,8 +90,8 @@ class StatisticsPage extends ConsumerWidget {
                       buildChartSectionTemperature(
                         context: context,
                         title: 'Lämpötila: ',
-                        data: greenhouseData.avgTemperatures,
-                        timestamps: greenhouseData.avgTimestamps,
+                        data: greenhouseData.temperatures,
+                        timestamps: greenhouseData.timestamps,
                         color: Colors.orange,
                       ),
                       SizedBox(height: 16.0),
@@ -84,8 +99,8 @@ class StatisticsPage extends ConsumerWidget {
                       buildChartSectionHumidity(
                         context: context,
                         title: 'Kosteus: ',
-                        data: greenhouseData.avgHumidities,
-                        timestamps: greenhouseData.avgTimestamps,
+                        data: greenhouseData.humidities,
+                        timestamps: greenhouseData.timestamps,
                         color: Colors.blue,
                       ),
                       SizedBox(height: 100.0), // Lisätilaa alareunaan
