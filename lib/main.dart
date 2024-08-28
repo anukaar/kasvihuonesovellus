@@ -4,19 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kasvihuonesovellus/views/home_page.dart';
 
+// Odotetaan, että Firebase on alustettu ja anonyymi kirjautuminen on suoritettu ennen sovelluksen käynnistämistä
 void main() async {
+  // Varmistetaan Flutterin widgettien alustus ennen sovelluksen käynnistystä
   WidgetsFlutterBinding.ensureInitialized();
+  // Alustetaan Firebase-projekti
   await Firebase.initializeApp();
+  // Suoritetaan anonyymi kirjautuminen Firebase Authenticationiin
   await signInAnonymously();
+
+  // Käynnistetään sovellus, ja ProviderScope mahdollistaa Riverpod-tilanhallinnan
   runApp(const ProviderScope(child: MyApp()));
 }
 
+// Määritellään sovelluksen teema
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: const Color(0xFFC8E6C9),
@@ -24,12 +32,14 @@ class MyApp extends StatelessWidget {
           backgroundColor: Color(0xFF66BB6A),
         ),
       ),
-      home: HomePage(),
+      home: HomePage(), // Asetetaan sovelluksen aloitussivuksi HomePage
     );
   }
 }
 
-// Anonyymi kirjautuminen Firebase Authenticationiin
+// Suoritetaan anonyymi kirjautuminen Firebase Authenticationiin
+// Tämä mahdollistaa sovelluksen käytön ilman käyttäjän kirjautumista sisään.
+//Tulostaa konsoliin käyttäjän UID:n onnistuneen kirjautumisen jälkeen.
 Future<void> signInAnonymously() async {
   try {
     UserCredential userCredential =

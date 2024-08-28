@@ -212,7 +212,7 @@ class _LineChartWidget extends StatelessWidget {
             data[index],
           ),
         ),
-        isCurved: true,
+        isCurved: false,
         color: color,
         barWidth: 2,
         belowBarData: BarAreaData(show: false),
